@@ -84,11 +84,11 @@ class custom(Gtk.Window):
             grid.set_row_homogeneous(True)
             self.add(grid)
 
-            self.label1 = Gtk.Label(label="xrandr --newmode " + defaultshow.stdout.decode())
+            self.label1 = Gtk.Label(label="xrandr --newmode " + self.defaultshow.stdout.decode())
             self.label1.set_selectable(True)
             grid.attach(self.label1, 1, 0, 1, 1)
 
-            self.label2 = Gtk.Label(label="xrandr --addmode " + display.stdout.decode().strip() + " 65.00Hz")
+            self.label2 = Gtk.Label(label="xrandr --addmode " + self.display.stdout.decode().strip() + " 65.00Hz")
             self.label2.set_selectable(True)
             grid.attach(self.label2, 1, 1, 1, 1)
 
