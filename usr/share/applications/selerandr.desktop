@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Display Settings
+Comment=Change Resolution, Frame Rate, Rotation and Scale of display
+Exec=selerandr
+Icon=video-display
+Terminal=false
+Type=Application
+Categories=GTK;Settings;HardwareSettings;
+Keywords=screen;display;tv;extend;projector;xrandr;refresh rate;rotate;enable;disable;
+X-AppStream-Ignore=true

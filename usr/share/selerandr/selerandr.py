@@ -73,6 +73,15 @@ class selerandr(Gtk.Window):
         self.rotate_combo.append_text("inverted")
         grid.attach(self.rotate_combo, 1, 2, 1, 1)
 
+        label_scale = Gtk.Label(label="Scale (%):")
+        grid.attach(label_scale, 0, 4, 1, 1)
+
+        self.scale = Gtk.Scale()
+        self.scale.set_range(30, 200)
+        self.scale.set_value(100)
+        self.scale.set_digits(0)
+        grid.attach(self.scale, 1, 4, 1, 1)
+
         label_output = Gtk.Label(label="Output:")
         grid.attach(label_output, 0, 3, 1, 1)
 
@@ -93,15 +102,15 @@ class selerandr(Gtk.Window):
 
         auto_button = Gtk.Button(label="Add Custom Resolution")
         auto_button.connect("clicked", self.on_custom_clicked)
-        grid.attach(auto_button, 0, 4, 1, 1)
+        grid.attach(auto_button, 0, 5, 1, 1)
 
         auto_button = Gtk.Button(label="Default")
         auto_button.connect("clicked", self.on_auto_clicked)
-        grid.attach(auto_button, 1, 4, 1, 1)
+        grid.attach(auto_button, 1, 5, 1, 1)
        
         apply_button = Gtk.Button(label="Apply")
         apply_button.connect("clicked", self.on_apply_clicked)
-        grid.attach(apply_button, 2, 4, 1, 1)
+        grid.attach(apply_button, 2, 5, 1, 1)
 
 
         self.resolution_combo.set_active(0)
@@ -129,12 +138,13 @@ class selerandr(Gtk.Window):
     def on_apply_clicked(self, button):
         resolution, refresh_rate = self.resolution_combo.get_active_text(), self.refresh_rate_combo.get_active_text()
         output = self.output_combo.get_active_text()
-        rotate = self.rotate_combo.get_active_text()
-        subprocess.run(["xrandr", "--output", output, "--mode", resolution, "--rate", refresh_rate, "--rotate", rotate])
+        rotate = self.rotate_combo.get_active_text() 
+        subprocess.run(["xrandr", "--output", output, "--auto", "--rotate", "normal", "--scale", "1"])
+        subprocess.run(["xrandr", "--output", output, "--mode", resolution, "--rate", refresh_rate, "--rotate", rotate, "--scale", str(self.scale.get_value()/100)])
 
     def on_auto_clicked(self, button):
         output = self.output_combo.get_active_text()
-        subprocess.run(["xrandr", "--output", output, "--auto", "--rotate", "normal"])
+        subprocess.run(["xrandr", "--output", output, "--auto", "--rotate", "normal", "--scale", "1"])
 
     def on_custom_clicked(self, button):
         subprocess.run(["python3", "custom.py"])
@@ -155,7 +165,6 @@ class selerandr(Gtk.Window):
             if " connected" in line:
                 outputs.append(line.split()[0])
         return outputs
-
 
 win = selerandr()
 win.connect("delete-event", Gtk.main_quit)
