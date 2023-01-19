@@ -80,7 +80,7 @@ class selerandr(Gtk.Window):
         self.scale.set_range(30, 200)
         self.scale.set_value(100)
         self.scale.set_digits(0)
-        grid.attach(self.scale, 1, 4, 1, 1)
+        grid.attach(self.scale, 1, 4, 2, 1)
 
         label_output = Gtk.Label(label="Output:")
         grid.attach(label_output, 0, 3, 1, 1)
