@@ -10,7 +10,13 @@ class selerandr(Gtk.Window):
         self.set_default_size(555, 444)
 
         menubar = Gtk.MenuBar()
-        
+
+        icon_menu_item = Gtk.MenuItem()
+        icon_image = Gtk.Image.new_from_icon_name("video-display", Gtk.IconSize.MENU)
+        icon_menu_item.add(icon_image)
+        icon_menu_item.set_sensitive(False)
+        menubar.append(icon_menu_item)
+
         # Close button
         close_button = Gtk.Button()
         close_button.set_image(Gtk.Image.new_from_icon_name("window-close", Gtk.IconSize.BUTTON))
@@ -27,7 +33,6 @@ class selerandr(Gtk.Window):
         help_menu.set_submenu(Gtk.Menu())
         menubar.append(help_menu)
         
-        # Create the help option item
         help_item = Gtk.MenuItem(label="About")
         help_item.connect("activate", self.on_about_clicked)
         help_menu.get_submenu().append(help_item)
