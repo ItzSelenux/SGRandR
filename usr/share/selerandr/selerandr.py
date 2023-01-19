@@ -148,7 +148,7 @@ class selerandr(Gtk.Window):
 
     def on_custom_clicked(self, button):
         subprocess.run(["python3", "custom.py"])
-
+        subprocess.run(["python3", "/usr/share/selerandr/custom.py"])
     def get_resolutions(self):
         xrandr_output = subprocess.run(["xrandr"], capture_output=True, text=True).stdout
         resolutions = []
