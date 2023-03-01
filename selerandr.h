@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #define BUFFER_SIZE 1024
 
 char **resolutions;
@@ -25,46 +24,54 @@ char** get_resolutions() {
     return resolutions;
 }
 
-char** get_rates() {
-    char buffer[BUFFER_SIZE];
-    char** rates = malloc(BUFFER_SIZE * sizeof(char*));
-    int count = 0;
+    char **get_rates() {
+        char buffer[BUFFER_SIZE];
+        char **rates = malloc(BUFFER_SIZE * sizeof(char *));
+        int count = 0;
 
-    FILE* pipe = popen("xrandr", "r");
-    if (!pipe) {
-        fprintf(stderr, "Error executing command.\n");
-        return NULL;
-    }
-
-int ures = 1;
-
-while (fgets(buffer, BUFFER_SIZE, pipe)) {
-    if (strstr(buffer, "*")) {
-        char* rate = strtok(buffer, " ");
-        while (rate != NULL) {
-            if (!ures && strcmp(rate, "\n") != 0 && strcmp(rate, "\r\n") != 0) {
-                rates[count] = malloc(strlen(rate) + 1);
-                strcpy(rates[count], rate);
-
-                count++;
-            }
-
-            if (ures) {
-                ures = 0;
-            }
-
-            rate = strtok(NULL, " ");
+        FILE *pipe = popen("xrandr", "r");
+        if (!pipe) {
+            fprintf(stderr, "Error executing command.\n");
+            return NULL;
         }
+
+        int ures = 1;
+
+        while (fgets(buffer, BUFFER_SIZE, pipe)) {
+            if (strstr(buffer, "*")) {
+                char *rate = strtok(buffer, " ");
+                while (rate != NULL && count < BUFFER_SIZE) {  // check if count is less than BUFFER_SIZE before accessing rates array
+                    // remove "+" and newlines
+                    rate[strcspn(rate, "+\n")] = 0;
+
+                    if (!ures && strcmp(rate, "") != 0) {
+                        rates[count] = malloc(strlen(rate) + 1);
+                        strcpy(rates[count], rate);
+
+                        count++;
+                    }
+
+                    if (ures) {
+                        ures = 0;
+                    }
+
+                    rate = strtok(NULL, " ");
+                }
+            }
+        }
+
+        pclose(pipe);
+
+        // Add NULL terminator to array
+        if (count < BUFFER_SIZE) {  // check if count is less than BUFFER_SIZE before accessing rates array
+            rates[count] = NULL;
+        } else {
+            fprintf(stderr, "Array index out of bounds.\n");
+        }
+
+        return rates;
     }
-}
 
-    pclose(pipe);
-
-    // Add NULL terminator to array
-    rates[count] = NULL;
-
-    return rates;
-}
 
 char** get_outputs() {
     char* command = "xrandr";

@@ -61,17 +61,12 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
 
     char **rates = get_rates();
 
-    // do something with rates
-
-    // Free memory
-    for (int i = 0; i < BUFFER_SIZE && rates[i] != NULL; i++) {
-        free(rates[i]);
-    }
             g_print("Refresh Rates changed to display mode: %s\n", sres);
     rates = get_rates();
     for (int i = 0; rates[i] != NULL; i++) 
     {
-        printf("%s\n", rates[i]);
+        GtkComboBox *refcombo = GTK_COMBO_BOX(user_data);
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), rates[i]);
         free(rates[i]);
     }
     free(rates);
@@ -81,12 +76,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
 }
 
 
-static void on_refcombo_changed(GtkComboBox *combo_box, gpointer user_data) {
-    GtkComboBoxText *combo_text = GTK_COMBO_BOX_TEXT(combo_box);
-    const gchar *selected_item = gtk_combo_box_text_get_active_text(combo_text);
-    g_print("Selected reference: %s\n", selected_item);
-    g_free((gpointer) selected_item);
-}
+
 
 int main(int argc, char *argv[]) {
     GtkWidget *window;
@@ -97,7 +87,7 @@ int main(int argc, char *argv[]) {
     gtk_init(&argc, &argv);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "Voltage Divider Calculator");
+    gtk_window_set_title(GTK_WINDOW(window), "SeleRandr");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -113,20 +103,17 @@ int main(int argc, char *argv[]) {
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(rescombo), 0);
 
-    g_signal_connect(rescombo, "changed", G_CALLBACK(on_rescombo_changed), NULL);
+    g_signal_connect(rescombo, "changed", G_CALLBACK(on_rescombo_changed), refcombo);
 
     refcombo = gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), "testroom");
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
 
-    g_signal_connect(refcombo, "changed", G_CALLBACK(on_refcombo_changed), NULL);
 
 
-
-    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Resistor:"), 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Resolution:"), 0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), rescombo, 1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Reference voltage:"), 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Refresh Rate:"), 0, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), refcombo, 1, 1, 1, 1);
 
 

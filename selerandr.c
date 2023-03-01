@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 #include "selerandr.h"
+ 
+
 int main(int argc, char *argv[])
 {
     gtk_init(&argc, &argv);
@@ -123,12 +125,28 @@ int main(int argc, char *argv[])
     free(command);
     }
     
+    //command
+    void dfrs() 
+    {
+        const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
+    
+    char *command = (char*) malloc(sizeof(char) * 100);
+    sprintf(command, "xrandr --output %s --auto", output);
+    
+    system(command);
+    free(command);
+    }
+    
     //button void
+    void on_default_button_clicked(GtkButton *button, gpointer user_data) {
+    dfrs();
+    }
     void on_apply_button_clicked(GtkButton *button, gpointer user_data) {
     chrs();
     }
 
     g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), NULL);
+    g_signal_connect(defbtn, "clicked", G_CALLBACK(on_default_button_clicked), NULL);
 
     // End
     gtk_widget_show_all(window);
