@@ -14,7 +14,7 @@
 
 ## Build 
 ```
-gcc `pkg-config --cflags gtk+-3.0` -o "%e"  "%f" `pkg-config --libs gtk+-3.0`
+gcc `pkg-config --cflags gtk+-3.0` -o "selerandr"  "selerandr.c" `pkg-config --libs gtk+-3.0`
 ```
 standalone GUI for xrandr, with options to Resolutions, Refresh rate, rotate, scale. on/off output and add custom resolutions
 <img src="https://github.com/ItzSelenux/ItzSelenux.github.io/blob/main/res/pages/selerandr/1.png?raw=true">
