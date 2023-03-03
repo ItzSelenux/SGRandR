@@ -163,7 +163,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     }
     free(outputs);
     
-    // Disable OutCombo if it only have one option
+    // Open Extra option is there is more than one option
     GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(outcombo));
     int num_rows = gtk_tree_model_iter_n_children(model, NULL);
     if (!num_rows == 1) 
@@ -171,7 +171,8 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
         gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Position:"), 0, 5, 1, 1);
         gtk_grid_attach(GTK_GRID(grid), pos, 1, 5, 1, 1);
         gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 5, 1, 1);
-        
+         gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Position:"), 0, 3, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 3, 1, 1);
         gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
         gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
         gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
@@ -297,7 +298,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     chrs();
     }
     void on_custom_button_clicked(GtkButton *button, gpointer user_data) {
-    system("./custom");
+    system("./selerandr-cr");
 
     }
     g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), NULL);
