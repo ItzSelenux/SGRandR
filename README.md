@@ -8,8 +8,10 @@
 - [x] Button to change Rotation of display
 - [x] Slider to change scale of display
 - [x] Get a List of output and on/off selected output
+- [x] Change Position of Display if there is more than one display
+- [x] Hide Output / Position options if there is only one output
 - [ ] Custom Resolution Creator
-- [ ] Change Position of Display if there is more than one display
+
 - [ ] Change the list of Resolutions dynamically
 
 ## Build 
