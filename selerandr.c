@@ -241,12 +241,11 @@ snprintf(slider, sizeof(slider), "%.2f", scl);
 
 // Replace commas with periods
 char *ptr = strchr(slider, ',');
-while (ptr != NULL) {
+while (ptr != NULL) 
+{
     *ptr = '.';
     ptr = strchr(ptr, ',');
 }
-
-printf("%s", slider);
         
     char *command = (char*) malloc(sizeof(char) * 100);
     char **outputs = get_outputs();
@@ -301,13 +300,18 @@ printf("%s", slider);
     }
     
     //button void
-    void on_default_button_clicked(GtkButton *button, gpointer user_data) {
+    void on_default_button_clicked(GtkButton *button, gpointer user_data) 
+    {
     dfrs();
     }
-    void on_apply_button_clicked(GtkButton *button, gpointer user_data) {
+    
+    void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
+    {
     chrs();
     }
-    void on_custom_button_clicked(GtkButton *button, gpointer user_data) {
+    
+    void on_custom_button_clicked(GtkButton *button, gpointer user_data) 
+    {
     system("./selerandr-cr");
 
     }
