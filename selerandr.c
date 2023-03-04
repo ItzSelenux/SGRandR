@@ -234,11 +234,20 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
         }
         
         
-        int sld = gtk_range_get_value(GTK_RANGE(slider));
-        double scl = (double)(sld) / (double)(100);
-        char slider[16];
-        snprintf(slider, sizeof(slider), "%.2f%", scl);
-    
+int sld = gtk_range_get_value(GTK_RANGE(slider));
+double scl = (double)(sld) / (double)(100);
+char slider[16];
+snprintf(slider, sizeof(slider), "%.2f", scl);
+
+// Replace commas with periods
+char *ptr = strchr(slider, ',');
+while (ptr != NULL) {
+    *ptr = '.';
+    ptr = strchr(ptr, ',');
+}
+
+printf("%s", slider);
+        
     char *command = (char*) malloc(sizeof(char) * 100);
     char **outputs = get_outputs();
         if (outputs != NULL) 
