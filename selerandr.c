@@ -173,6 +173,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
         gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 5, 1, 1);
          gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Output:"), 0, 3, 1, 1);
         gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 3, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), offon, 2, 3, 1, 1);
         gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
         gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
         gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
