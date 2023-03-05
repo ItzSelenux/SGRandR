@@ -1,4 +1,4 @@
-# SeleRandr
+# SGRandR
 
 ## TO DO: 
 
