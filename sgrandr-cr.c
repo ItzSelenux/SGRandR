@@ -4,6 +4,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+    void on_submenu_item3_selected(GtkMenuItem *menuitem, gpointer userdata) 
+    {
+        GtkWidget *dialog;
+        dialog = gtk_about_dialog_new();
+
+    gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR-CR");
+    gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "SGDE Custom Resolution Generator");
+    gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), "1.0");
+    gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 ItzSelenux for Simple GTK Desktop Environment");
+    gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
+    gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
+    gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_MIT_X11);
+    gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    
+    }
 void on_entry_changed(GtkEntry *entry, gpointer user_data) 
 {
     const char *text = gtk_entry_get_text(entry);
@@ -35,7 +52,7 @@ int main(int argc, char *argv[])
 
     //Main window
     GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(window), "SeleRandr - Create a new resolution");
+    gtk_window_set_title(GTK_WINDOW(window), "Create a new resolution - SGRandR");
     gtk_container_set_border_width(GTK_CONTAINER(window), 10);
     gtk_widget_set_size_request(window, 400, 300);
     g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
@@ -48,6 +65,42 @@ int main(int argc, char *argv[])
         g_object_unref(icon);
         g_object_unref(info);
     }
+
+     // Create the header bar
+    GtkWidget *headerbar = gtk_header_bar_new();
+    gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(headerbar), TRUE);
+    
+    GtkWidget *wicon = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_BUTTON);
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wicon);
+
+    GtkWidget *wtitle = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(wtitle), "<b>Create a new resolution - SGRandR</b>");
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
+    
+
+    // Create the button with an icon
+    GtkWidget *wbutton = gtk_menu_button_new();
+    GtkWidget *image = gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON);
+    gtk_container_add(GTK_CONTAINER(wbutton), image);
+    gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), wbutton);
+
+    // Create the submenu
+    GtkWidget *submenu = gtk_menu_new();
+
+    // Create the submenu items
+    GtkWidget *submenu_item3 = gtk_menu_item_new_with_label("About");
+
+    // Add the submenu items to the submenu
+    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item3);
+
+    // Show all the submenu items
+    gtk_widget_show_all(submenu);
+
+    // Connect the button to the submenu
+    gtk_menu_button_set_popup(GTK_MENU_BUTTON(wbutton), submenu);
+
+    // Add the header bar to the main window
+    gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
 
     // Create grid
     GtkWidget *grid = gtk_grid_new();
@@ -100,9 +153,23 @@ int main(int argc, char *argv[])
         sheight = "1080";
     }
         GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-        gtk_window_set_title(GTK_WINDOW(window), "SeleRandr - Commands for custom resolution");
+        gtk_window_set_title(GTK_WINDOW(window), "SGRandR - Commands for custom resolution");
                 GtkIconTheme *theme = gtk_icon_theme_get_default();
     GtkIconInfo *info = gtk_icon_theme_lookup_icon(theme, "video-display", 48, 0);
+    
+    
+     // Create the header bar
+    GtkWidget *headerbar = gtk_header_bar_new();
+    gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(headerbar), TRUE);
+    
+    GtkWidget *wicon = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_BUTTON);
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wicon);
+
+    GtkWidget *wtitle = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(wtitle), "<b> Commands for custom resolution - SGRandR</b>");
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
+    gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
+    
     if (info != NULL) {
         GdkPixbuf *icon = gtk_icon_info_load_icon(info, NULL);
         gtk_window_set_icon(GTK_WINDOW(window), icon);
@@ -179,6 +246,7 @@ int main(int argc, char *argv[])
     g_signal_connect(height, "changed", G_CALLBACK(on_entry_changed), NULL);
     g_signal_connect(rate, "changed", G_CALLBACK(on_entry_changed), NULL);
     g_signal_connect(applybtn, "clicked", G_CALLBACK(on_applybtn_clicked), window);
+    g_signal_connect(submenu_item3, "activate", G_CALLBACK(on_submenu_item3_selected), NULL);
 
     // End
     gtk_widget_show_all(window);

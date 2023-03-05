@@ -1,11 +1,16 @@
 [Desktop Entry]
 Name=Display Settings
 Comment=Change Resolutions, Refresh rate, Rotate, Scale, on/off output and add custom resolutions
-Exec=selerandr
+Exec=sgrandr
 Icon=video-display
 Terminal=false
 Type=Application
 Categories=GTK;Settings;HardwareSettings;
 Keywords=screen;display;tv;extend;projector;xrandr;refresh rate;position;enable;disable;custom;
 X-AppStream-Ignore=true
+Actions=Option2;
+
+[Desktop Action Option2]
+Name=Add a custom resolution
+Exec=sgrandr-cr
 
