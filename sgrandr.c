@@ -1,5 +1,7 @@
 #include <gtk/gtk.h>
 #include "sgrandr.h"
+
+  int sm = 0;
 //Function to change rate when other resolution is selected
 GtkWidget *dialog;
 static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
@@ -82,6 +84,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
  int main(int argc, char *argv[])
 {
   int testmode = 0;
+
 
   for(int i = 1; i < argc; i++) {
     if(strcmp(argv[i], "--testmode") == 0) {
@@ -276,14 +279,28 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     //command
     void chrs() 
     {
-        
+        const char *cpos;
+        int ps;
         const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
+        const char *opwr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(offon));
         const char *output2 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo2));
         const char *resolution = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(rescombo));
         const char *refresh_rate = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(refcombo));
         const char *rotation = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(rotcombo));
         const gchar *active_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(pos));
-        const char *cpos;
+        const char *scalingmode = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(scacombo));
+        
+        if (opwr == "On")
+        {
+        ps = 0;
+        }
+        else if (opwr == "Off")
+        {
+        ps = 1;
+        }
+        
+
+        
         if (active_text != NULL) 
         {
             if (g_strcmp0(active_text, "Same as") == 0) 
@@ -328,20 +345,35 @@ while (ptr != NULL)
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(outcombo2), outputs[i]);
         char fback[strlen(outputs[i])+1];
         strcpy(fback, outputs[i]);
-            
-        if (num_rows == 1) 
         
-
+        if (ps == 1) 
+        {
+            sprintf(command, "xrandr --output %s --off ", output);
+        }
+        else if (num_rows > 1 && sm == 1) 
+        {
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s --set \"scaling mode\" \" %s \" ", output, resolution, refresh_rate, rotation, slider, cpos, output2, scalingmode);
+        }
+        else if (sm == 1) 
+        {
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", fback, resolution, refresh_rate, rotation, slider, scalingmode);
+        }
+        else if (num_rows > 1) 
+        {
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s %s", output, resolution, refresh_rate, rotation, slider, cpos, output2);
+        }
+        else if (num_rows == 1) 
         {
             sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", fback, resolution, refresh_rate, rotation, slider);
         }
-        else
-        {
-            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, rotation, slider, cpos, output2);
-        }
+
+
+
+        
             }
     free(outputs);
         }
+    printf(command, "\n");
     
     system(command);
     free(command);
@@ -386,17 +418,22 @@ while (ptr != NULL)
         system("./sgrandr-cr");
     }
     
-    void on_submenu_item2_toggled(GtkCheckMenuItem *menu_item, gpointer user_data) 
+    void on_submenu_item2_toggled(GtkCheckMenuItem *menu_item,void *ptr, gpointer user_data) 
     {
+        
     if (gtk_check_menu_item_get_active(menu_item)) 
         {
                 gtk_widget_show(scacombo);
                 gtk_widget_show(scalabel);
+                int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
+                *int_ptr = 1;
         } 
     else 
         {
                 gtk_widget_hide(scacombo);
                 gtk_widget_hide(scalabel);
+                int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
+                *int_ptr = 0;
         }
     }
     
@@ -422,7 +459,7 @@ while (ptr != NULL)
     g_signal_connect(rescombo, "changed", G_CALLBACK(on_rescombo_changed), refcombo);
         // Connect the submenu items to the callback function
     g_signal_connect(submenu_item1, "activate", G_CALLBACK(on_submenu_item1_selected), NULL);
-    g_signal_connect(submenu_item2, "toggled", G_CALLBACK(on_submenu_item2_toggled), NULL);
+    g_signal_connect(submenu_item2, "toggled", G_CALLBACK(on_submenu_item2_toggled), &sm);
     g_signal_connect(submenu_item3, "activate", G_CALLBACK(on_submenu_item3_selected), NULL);
 
 
