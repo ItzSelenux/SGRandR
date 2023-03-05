@@ -346,6 +346,7 @@ while (ptr != NULL)
         char fback[strlen(outputs[i])+1];
         strcpy(fback, outputs[i]);
         
+        printf(fback);
         if (ps == 1) 
         {
             sprintf(command, "xrandr --output %s --off ", output);
