@@ -165,7 +165,6 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     GtkWidget *rescombo = gtk_combo_box_text_new();
 
     GtkWidget *refcombo = gtk_combo_box_text_new();
-    
     GtkWidget *rotcombo = gtk_combo_box_text_new();
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "normal");
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "left");
@@ -197,6 +196,8 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Aspect");
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "1:1");
             GtkWidget *scalabel = gtk_label_new("Scaling Mode:");
+            GtkWidget *outlabel = gtk_label_new("Output:");
+            GtkWidget *poslabel = gtk_label_new("Position:");
         
     GtkWidget *defbtn    = gtk_button_new_with_label("Default");
     GtkWidget *applybtn  = gtk_button_new_with_label("Apply");
@@ -232,16 +233,6 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     int num_rows = gtk_tree_model_iter_n_children(model, NULL);
     if (!num_rows == 1 || testmode == 1) 
     {
-        gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Position:"), 0, 5, 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), pos, 1, 5, 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 5, 1, 1);
-         gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Output:"), 0, 3, 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 3, 1, 1);
-        gtk_grid_attach(GTK_GRID(grid), offon, 2, 3, 1, 1);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
-        gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
         gtk_grid_attach(GTK_GRID(grid), applybtn, 2, 8, 1, 1);
         gtk_grid_attach(GTK_GRID(grid), defbtn,   1, 8, 1, 1);
     }
@@ -253,6 +244,10 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
     gtk_combo_box_set_active(GTK_COMBO_BOX(rotcombo), 0);
     gtk_combo_box_set_active(GTK_COMBO_BOX(scacombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
 
     //Items Grid position
     gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Resolution:"), 0, 0, 1, 1);
@@ -267,7 +262,12 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Scale (%):"), 0, 4, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), slider,   1, 4, 1, 1);
     
-    
+    gtk_grid_attach(GTK_GRID(grid), poslabel, 0, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), pos, 1, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 5, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), outlabel, 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), offon, 2, 3, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), scalabel, 0, 7, 1, 1);
     gtk_grid_attach(GTK_GRID(grid), scacombo,   1, 7, 1, 1);
     
@@ -276,10 +276,31 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     
 
 
-    //command
-    void chrs() 
+    
+    //button void
+    void on_default_button_clicked(GtkButton *button, gpointer user_data) 
     {
-        const char *cpos;
+    const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
+    
+    char *command = (char*) malloc(sizeof(char) * 100);
+    sprintf(command, "xrandr --output %s --auto --scale 1 --rotate normal", output);
+    
+    system(command);
+    free(command);
+    gtk_range_set_value(GTK_RANGE(slider), 100);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(rescombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(rotcombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(scacombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
+    }
+    
+    void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
+    {
+            const char *cpos;
         int ps;
         const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
         const char *opwr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(offon));
@@ -298,8 +319,6 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
         {
         ps = 1;
         }
-        
-
         
         if (active_text != NULL) 
         {
@@ -321,6 +340,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
             }
         }
         
+        printf(cpos);
         
 int sld = gtk_range_get_value(GTK_RANGE(slider));
 double scl = (double)(sld) / (double)(100);
@@ -336,82 +356,32 @@ while (ptr != NULL)
 }
         
     char *command = (char*) malloc(sizeof(char) * 100);
-    char **outputs = get_outputs();
-        if (outputs != NULL) 
-        {
-    for (int i = 0; outputs[i] != NULL; i++) 
-            {
-        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(outcombo), outputs[i]);
-        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(outcombo2), outputs[i]);
-        char fback[strlen(outputs[i])+1];
-        strcpy(fback, outputs[i]);
         
-        printf(fback);
         if (ps == 1) 
         {
             sprintf(command, "xrandr --output %s --off ", output);
         }
         else if (num_rows > 1 && sm == 1) 
         {
-            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s --set \"scaling mode\" \" %s \" ", output, resolution, refresh_rate, rotation, slider, cpos, output2, scalingmode);
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, rotation, slider, scalingmode, cpos, output2);
         }
         else if (sm == 1) 
         {
-            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", fback, resolution, refresh_rate, rotation, slider, scalingmode);
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, rotation, slider, scalingmode);
         }
         else if (num_rows > 1) 
         {
-            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s %s", output, resolution, refresh_rate, rotation, slider, cpos, output2);
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, rotation, slider, cpos, output2);
         }
         else if (num_rows == 1) 
         {
-            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", fback, resolution, refresh_rate, rotation, slider);
+            sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, rotation, slider);
         }
-
-
-
         
-            }
-    free(outputs);
-        }
     printf(command, "\n");
     
     system(command);
     free(command);
-    }
-    
-    //command
-    void dfrs() 
-    {
-        const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
-    
-    char *command = (char*) malloc(sizeof(char) * 100);
-    char **outputs = get_outputs();
-    if (outputs != NULL) 
-        {
-    for (int i = 0; outputs[i] != NULL; i++) 
-    {
-        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(outcombo), outputs[i]);
-        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(outcombo2), outputs[i]);
-        char fback[strlen(outputs[i])+1]; // Allocate an array with enough space to hold the string
-        strcpy(fback, outputs[i]);
-    sprintf(command, "xrandr --output %s --auto --scale 1", fback);
-    
-    system(command);
-    free(command);
-    }
-        }
-    }
-    
-    //button void
-    void on_default_button_clicked(GtkButton *button, gpointer user_data) 
-    {
-    dfrs();
-    }
-    
-    void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
-    {
-    chrs();
     }
     
     void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata) 
@@ -465,7 +435,26 @@ while (ptr != NULL)
 
 
     // End
-    gtk_widget_show_all(window);
+        gtk_widget_show_all(window);
+    if (!num_rows == 1 || testmode == 1) 
+    {
+        gtk_widget_show(pos);
+        gtk_widget_show(offon);
+        gtk_widget_show(poslabel);
+        gtk_widget_show(outcombo);
+        gtk_widget_show(outcombo2);
+        gtk_widget_show(outlabel);
+    }
+    else
+    {
+    gtk_widget_hide(pos);
+    gtk_widget_hide(offon);
+    gtk_widget_hide(poslabel);
+    gtk_widget_hide(outcombo);
+    gtk_widget_hide(outcombo2);
+    gtk_widget_hide(outlabel);
+    }
+
     gtk_widget_hide(scacombo);
     gtk_widget_hide(scalabel);
     gtk_main();
