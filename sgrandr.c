@@ -119,19 +119,13 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     GtkWidget *headerbar = gtk_header_bar_new();
     gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(headerbar), TRUE);
     
-    GtkWidget *wicon = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_BUTTON);
-    gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wicon);
-
+   GtkWidget *button = gtk_menu_button_new();
+    GtkWidget *image = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_BUTTON);
+    gtk_container_add(GTK_CONTAINER(button), image);
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
     GtkWidget *wtitle = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(wtitle), "<b>Display Settings - SGRandR</b>");
     gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
-    
-
-    // Create the button with an icon
-    GtkWidget *button = gtk_menu_button_new();
-    GtkWidget *image = gtk_image_new_from_icon_name("open-menu-symbolic", GTK_ICON_SIZE_BUTTON);
-    gtk_container_add(GTK_CONTAINER(button), image);
-    gtk_header_bar_pack_end(GTK_HEADER_BAR(headerbar), button);
 
     // Create the submenu
     GtkWidget *submenu = gtk_menu_new();
