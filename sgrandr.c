@@ -131,6 +131,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
     GtkWidget *submenu = gtk_menu_new();
 
     // Create the submenu items
+    
     GtkWidget *submenu_item1 = gtk_menu_item_new_with_label("Add a custom resolution");
     GtkWidget *submenu_item2 = gtk_check_menu_item_new_with_label("Show \"Scaling mode \" option");
     GtkWidget *submenu_item3 = gtk_menu_item_new_with_label("About");
@@ -334,8 +335,6 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
             }
         }
         
-        printf(cpos);
-        
 int sld = gtk_range_get_value(GTK_RANGE(slider));
 double scl = (double)(sld) / (double)(100);
 char slider[16];
@@ -380,7 +379,19 @@ while (ptr != NULL)
     
     void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata) 
     {
-        system("./sgrandr-cr");
+        if (access("/usr/bin/sgrandr-cr", F_OK) == 0) 
+        {
+            system("/usr/bin/sgrandr-cr");
+        }
+        else if
+        (access("./sgrandr-cr", F_OK) == 0) 
+        {
+            system("./sgrandr-cr");
+        } 
+        else 
+        {
+            printf("\033[1;31mERROR\033[0m: sgrandr-cr not detected, are you in testmode?\n");
+        }
     }
     
     void on_submenu_item2_toggled(GtkCheckMenuItem *menu_item,void *ptr, gpointer user_data) 
@@ -412,7 +423,7 @@ while (ptr != NULL)
     gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "SGDE Display Configurator");
     gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
     gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
-    gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_MIT_X11);
+    gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_GPL_3_0);
     gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
@@ -429,6 +440,21 @@ while (ptr != NULL)
 
 
     // End
+    
+        if (access("/usr/bin/sgrandr-cr", F_OK) == 0) 
+    {
+        printf("sgrandr-cr detected \n");
+    }
+    else if
+    (access("./sgrandr-cr", F_OK) == 0) 
+    {
+        printf("sgrandr-cr detected \n");
+    } 
+    else {
+        printf("\033[1;33mWARNING\033[0m: sgrandr-cr not detected, hiding button.\n");
+        gtk_widget_hide(submenu_item1);
+    }
+    
         gtk_widget_show_all(window);
     if (!num_rows == 1 || testmode == 1) 
     {
@@ -438,6 +464,7 @@ while (ptr != NULL)
         gtk_widget_show(outcombo);
         gtk_widget_show(outcombo2);
         gtk_widget_show(outlabel);
+        gtk_widget_show(submenu_item1);
     }
     else
     {
@@ -451,6 +478,7 @@ while (ptr != NULL)
 
     gtk_widget_hide(scacombo);
     gtk_widget_hide(scalabel);
+    on_rescombo_changed(GTK_COMBO_BOX(rescombo), refcombo);
     gtk_main();
 
 return 0;
