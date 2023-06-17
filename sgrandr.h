@@ -6,6 +6,7 @@
 char **resolutions;
 char **rates;
 char **outputs;
+const char* program_version = "1.1";
 
 char** get_resolutions() 
 {
