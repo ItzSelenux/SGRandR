@@ -1,8 +1,4 @@
-#include <gtk/gtk.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include "sgrandr.h"
 
 GtkWidget *global_label0;
@@ -12,20 +8,19 @@ GtkWidget *global_label3;
 
 	void on_submenu_item3_selected(GtkMenuItem *menuitem, gpointer userdata) 
 	{
-		GtkWidget *dialog;
-		dialog = gtk_about_dialog_new();
+	GtkWidget *dialog;
+	dialog = gtk_about_dialog_new();
 
-	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR-CR");
-	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "SGDE Custom Resolution Generator");
-	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), program_version);
-	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 ItzSelenux for Simple GTK Desktop Environment");
-	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
-	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
-	gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_MIT_X11);
-	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
-	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-	
+		gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR-CR");
+		gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "SGDE Custom Resolution Generator");
+		gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 ItzSelenux for Simple GTK Desktop Environment");
+		gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
+		gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
+		gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_MIT_X11);
+		gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
+		gtk_dialog_run(GTK_DIALOG(dialog));
+		gtk_widget_destroy(dialog);
+
 	}
 void on_entry_changed(GtkEntry *entry, gpointer user_data) 
 {
@@ -146,7 +141,7 @@ int main(int argc, char *argv[])
 	gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 3, 1, 1);
 
 	gtk_grid_attach(GTK_GRID(grid), applybtn, 0, 4, 2, 1);
-	gtk_grid_attach(GTK_GRID(grid), gtk_label_new("WARNING: adding a custom resolution may cause unexpected results, \n like black screen if is unsopported by the Display or errors on resolutions list"), 0, 5, 2, 1);
+	gtk_grid_attach(GTK_GRID(grid), gtk_label_new("WARNING: adding a custom resolution may cause unexpected results, \n like black screen if is unsopported by the Display or errors on resolutions list, \n you can set default configuration with Ctrl+D"), 0, 5, 2, 1);
 	
 
 
@@ -155,7 +150,7 @@ void on_save_button_clicked(GtkButton *button, gpointer user_data)
 	const char *text0 = gtk_label_get_text(GTK_LABEL(global_label0));
 	const char *text3 = gtk_label_get_text(GTK_LABEL(global_label3));
 
-	GtkWidget *dialog = gtk_file_chooser_dialog_new("Save resolutions", GTK_WINDOW(user_data), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancelar", GTK_RESPONSE_CANCEL, "Guardar", GTK_RESPONSE_ACCEPT, NULL);
+	GtkWidget *dialog = gtk_file_chooser_dialog_new("Save resolutions", GTK_WINDOW(user_data), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
 
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (result == GTK_RESPONSE_ACCEPT) 

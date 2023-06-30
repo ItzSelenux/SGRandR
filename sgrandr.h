@@ -1,12 +1,14 @@
+#include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
+
 #define BUFFER_SIZE 1024
 
 char **resolutions;
 char **rates;
 char **outputs;
-const char* program_version = "1.1";
 
 char** get_resolutions() 
 {
@@ -89,7 +91,8 @@ char** get_outputs()
     char* command = "xrandr";
     char buffer[BUFFER_SIZE];
     FILE* fp = popen(command, "r");
-    if (fp == NULL) {
+    if (fp == NULL) 
+    {
         fprintf(stderr, "Failed to execute command\n");
         exit(EXIT_FAILURE);
     }
