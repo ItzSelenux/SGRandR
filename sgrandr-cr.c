@@ -50,6 +50,16 @@ int main(int argc, char *argv[])
 {
 	gtk_init(&argc, &argv);
 
+	int nocsd = 0;
+
+
+for(int i = 1; i < argc; i++) 
+{
+	if(strcmp(argv[i], "--nocsd") == 0) {
+	nocsd = 1;
+	printf("CSD Disabled, using fallback display \n");
+	}
+}
 
 	//Main window
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -95,7 +105,10 @@ int main(int argc, char *argv[])
 	gtk_menu_button_set_popup(GTK_MENU_BUTTON(button), submenu);
 
 	// Add the header bar to the main window
+	if (nocsd == 0 )
+	{
 	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
+	}
 
 	// Create grid
 	GtkWidget *grid = gtk_grid_new();
@@ -254,7 +267,10 @@ void on_ok_button_clicked(GtkButton *button, gpointer user_data)
 	GtkWidget *wtitle = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(wtitle), "<b> Commands for custom resolution - SGRandR</b>");
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
+	if (nocsd == 0 )
+	{
 	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
+	}
 	
 	if (info != NULL) {
 		GdkPixbuf *icon = gtk_icon_info_load_icon(info, NULL);

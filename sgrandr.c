@@ -1,8 +1,8 @@
 #include "sgrandr.h"
 
-  int sm = 0;
-  char *command;
-  
+int sm = 0;
+char *command;
+int nocsd = 0;
   
 
 //Function to change rate when other resolution is selected
@@ -88,9 +88,6 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
 {
 	int testmode = 0;
 
-	int nocsd = 0;
-
-
 for(int i = 1; i < argc; i++) 
 {
 	if(strcmp(argv[i], "--nocsd") == 0) {
@@ -171,7 +168,7 @@ if(testmode)
 	gtk_menu_button_set_popup(GTK_MENU_BUTTON(button), submenu);
 
 	// Add the header bar to the main window
-		   if (nocsd == 0 )
+	if (nocsd == 0 )
 	{
 	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
 	}
@@ -408,22 +405,27 @@ while (ptr != NULL)
 	system(command);
 	}
 	
-	void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata) 
-	{
-		if (access("/usr/bin/sgrandr-cr", F_OK) == 0) 
-		{
-			system("/usr/bin/sgrandr-cr");
+void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata)
+{
+	if (nocsd == 1) {
+		if (access("/usr/bin/sgrandr-cr", F_OK) == 0) {
+			system("/usr/bin/sgrandr-cr --nocsd");
+		} else if (access("./sgrandr-cr", F_OK) == 0) {
+			system("./sgrandr-cr --nocsd");
+		} else {
+			printf("\033[1;31mERROR\033[0m: sgrandr-cr not detected, are you in testmode?\n");
 		}
-		else if
-		(access("./sgrandr-cr", F_OK) == 0) 
-		{
+	} else {
+		if (access("/usr/bin/sgrandr-cr", F_OK) == 0) {
+			system("/usr/bin/sgrandr-cr");
+		} else if (access("./sgrandr-cr", F_OK) == 0) {
 			system("./sgrandr-cr");
-		} 
-		else 
-		{
+		} else {
 			printf("\033[1;31mERROR\033[0m: sgrandr-cr not detected, are you in testmode?\n");
 		}
 	}
+}
+
 	
 	void on_submenu_item4_selected(GtkMenuItem *menuitem, gpointer userdata) 
 	{
