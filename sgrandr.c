@@ -86,19 +86,32 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
 
  int main(int argc, char *argv[])
 {
-  int testmode = 0;
+	int testmode = 0;
+
+	int nocsd = 0;
 
 
-  for(int i = 1; i < argc; i++) {
-	if(strcmp(argv[i], "--testmode") == 0) {
+for(int i = 1; i < argc; i++) 
+{
+	if(strcmp(argv[i], "--nocsd") == 0) {
+	nocsd = 1;
+	printf("CSD Disabled, using fallback display \n");
+	}
+}
+
+for(int i = 1; i < argc; i++) 
+{
+	if(strcmp(argv[i], "--testmode") == 0) 
+	{
 	  testmode = 1;
 	}
-  }
+}
 	gtk_init(&argc, &argv);
 
-  if(testmode) {
+if(testmode) 
+{
 	printf("--testmode is eneable, displaying all options \n");
-  }
+}
 
 
 	//Main window
@@ -158,8 +171,12 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
 	gtk_menu_button_set_popup(GTK_MENU_BUTTON(button), submenu);
 
 	// Add the header bar to the main window
+		   if (nocsd == 0 )
+	{
 	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
-
+	}
+	
+	
 	// Create grid
 	GtkWidget *grid = gtk_grid_new();
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
@@ -500,6 +517,18 @@ while (ptr != NULL)
 	
 	}
 	
+gboolean on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+		GtkWidget *submenu = GTK_WIDGET(data);
+		gtk_menu_popup_at_pointer(GTK_MENU(submenu), NULL);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+
 	g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), NULL);
 	g_signal_connect(defbtn, "clicked", G_CALLBACK(on_default_button_clicked), NULL);
 	g_signal_connect(rescombo, "changed", G_CALLBACK(on_rescombo_changed), refcombo);
@@ -510,7 +539,7 @@ while (ptr != NULL)
 	g_signal_connect(submenu_item5, "activate", G_CALLBACK(on_submenu_item5_selected), NULL);
 	g_signal_connect(submenu_item2, "toggled", G_CALLBACK(on_submenu_item2_toggled), &sm);
 	g_signal_connect(submenu_item3, "activate", G_CALLBACK(on_submenu_item3_selected), NULL);
-
+	g_signal_connect(window, "button-press-event", G_CALLBACK(on_button_press), submenu);
 
 	gtk_widget_add_accelerator(submenu_item1, "activate", accel_group, GDK_KEY_N, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 	gtk_widget_add_accelerator(submenu_item5, "activate", accel_group, GDK_KEY_S, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
