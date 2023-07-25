@@ -1,96 +1,22 @@
 #include "sgrandr.h"
 
-int sm = 0;
-char *command;
-int nocsd = 0;
-  
-
-//Function to change rate when other resolution is selected
-GtkWidget *dialog;
-static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data) {
-	GtkComboBoxText *combo_text = GTK_COMBO_BOX_TEXT(combo_box);
-	   const gchar *pres = gtk_combo_box_text_get_active_text(combo_text);
-
-	char *sres = g_strdup_printf("%s ", pres);  // allocate enough space for the copied string and the space character
-
-	char **get_rates() {
-		char buffer[BUFFER_SIZE];
-		char **rates = malloc(BUFFER_SIZE * sizeof(char *));
-		int count = 0;
-
-		FILE *pipe = popen("xrandr", "r");
-		if (!pipe) {
-			fprintf(stderr, "Error executing command.\n");
-			return NULL;
-		}
-
-		int ures = 1;
-
-		while (fgets(buffer, BUFFER_SIZE, pipe)) 
-		{
-			if (strstr(buffer, sres)) 
-			{
-				char *rate = strtok(buffer, " ");
-				while (rate != NULL && count < BUFFER_SIZE) {  // check if count is less than BUFFER_SIZE before accessing rates array
-					// remove "+" and newlines
-					rate[strcspn(rate, "+\n")] = 0;
-
-					if (!ures && strcmp(rate, "") != 0) {
-						rates[count] = malloc(strlen(rate) + 1);
-						strcpy(rates[count], rate);
-
-						count++;
-					}
-
-					if (ures) {
-						ures = 0;
-					}
-
-					rate = strtok(NULL, " ");
-				}
-			}
-		}
-
-		pclose(pipe);
-
-		// Add NULL terminator to array
-		if (count < BUFFER_SIZE) 
-		{  // check if count is less than BUFFER_SIZE before accessing rates array
-			rates[count] = NULL;
-		} else {
-			fprintf(stderr, "Array index out of bounds.\n");
-		}
-
-		return rates;
-	}
-
-	char **rates = get_rates();
-
-			g_print("Refresh Rates changed to display mode: %s\n", sres);
-			
-	rates = get_rates();
-	GtkComboBox *refcombo = GTK_COMBO_BOX(user_data);
-	gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(refcombo));
-	for (int i = 0; rates[i] != NULL; i++) 
-	{
-		printf("%s\n", rates[i]);
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), rates[i]);
-		gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
-
-	}
-	free(rates);
-
-	g_free(sres);
-
-}
-
  int main(int argc, char *argv[])
 {
+	if (argc > 0) 
+	{
+		pm = argv[0];
+	}
+	else
+	{
+		pm = "sgramdr";
+	}
+
 	int testmode = 0;
 
 for(int i = 1; i < argc; i++) 
 {
-	if(strcmp(argv[i], "--nocsd") == 0) {
+	if(strcmp(argv[i], "--nocsd") == 0)
+	{
 	nocsd = 1;
 	printf("CSD Disabled, using fallback display \n");
 	}
@@ -112,46 +38,47 @@ if(testmode)
 
 
 	//Main window
-	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "Display Settings - SGRandR");
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 	gtk_widget_set_size_request(window, 400, 300);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 	
-			GtkIconTheme *theme = gtk_icon_theme_get_default();
-	GtkIconInfo *info = gtk_icon_theme_lookup_icon(theme, "video-display", 48, 0);
-	if (info != NULL) {
-		GdkPixbuf *icon = gtk_icon_info_load_icon(info, NULL);
+			theme = gtk_icon_theme_get_default();
+	info = gtk_icon_theme_lookup_icon(theme, "video-display", 48, 0);
+	if (info != NULL)
+	{
+		icon = gtk_icon_info_load_icon(info, NULL);
 		gtk_window_set_icon(GTK_WINDOW(window), icon);
 		g_object_unref(icon);
 		g_object_unref(info);
 	}
 	//accelerator header
-	GtkAccelGroup *accel_group = gtk_accel_group_new();
+	accel_group = gtk_accel_group_new();
 		gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);
 	
 	// Create the header bar
-	GtkWidget *headerbar = gtk_header_bar_new();
+	headerbar = gtk_header_bar_new();
 	gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(headerbar), TRUE);
 	
-   GtkWidget *button = gtk_menu_button_new();
-	GtkWidget *image = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_BUTTON);
+	button = gtk_menu_button_new();
+	image = gtk_image_new_from_icon_name("video-display", GTK_ICON_SIZE_BUTTON);
 	gtk_container_add(GTK_CONTAINER(button), image);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
-	GtkWidget *wtitle = gtk_label_new(NULL);
+	wtitle = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(wtitle), "<b>Display Settings - SGRandR</b>");
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
 
 	// Create the submenu
-	GtkWidget *submenu = gtk_menu_new();
+	submenu = gtk_menu_new();
 
 	// Create the submenu items
 	
-	GtkWidget *submenu_item1 = gtk_menu_item_new_with_label("Add a custom resolution");
-	GtkWidget *submenu_item2 = gtk_check_menu_item_new_with_label("Show \"Scaling mode \" option");
-	GtkWidget *submenu_item4 = gtk_menu_item_new_with_label("Reload Program");
-	GtkWidget *submenu_item5 = gtk_menu_item_new_with_label("Save Configuration");
-	GtkWidget *submenu_item3 = gtk_menu_item_new_with_label("About");
+	submenu_item1 = gtk_menu_item_new_with_label("Add a custom resolution");
+	submenu_item2 = gtk_check_menu_item_new_with_label("Show \"Scaling mode \" option");
+	submenu_item4 = gtk_menu_item_new_with_label("Reload Program");
+	submenu_item5 = gtk_menu_item_new_with_label("Save Configuration");
+	submenu_item3 = gtk_menu_item_new_with_label("About");
 
 
 	// Add the submenu items to the submenu
@@ -175,52 +102,52 @@ if(testmode)
 	
 	
 	// Create grid
-	GtkWidget *grid = gtk_grid_new();
+	grid = gtk_grid_new();
 	gtk_grid_set_column_homogeneous(GTK_GRID(grid), TRUE);
 	gtk_grid_set_row_homogeneous(GTK_GRID(grid), TRUE);
 	gtk_container_add(GTK_CONTAINER(window), grid);
 
 	/// Widgets
-	GtkWidget *rescombo = gtk_combo_box_text_new();
+	rescombo = gtk_combo_box_text_new();
 
-	GtkWidget *refcombo = gtk_combo_box_text_new();
-	GtkWidget *rotcombo = gtk_combo_box_text_new();
+	refcombo = gtk_combo_box_text_new();
+	rotcombo = gtk_combo_box_text_new();
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "normal");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "left");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "right");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "inverted");
 	
-	GtkWidget *outcombo = gtk_combo_box_text_new();
-	GtkWidget *offon = gtk_combo_box_text_new();
+	outcombo = gtk_combo_box_text_new();
+	offon = gtk_combo_box_text_new();
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(offon), "On");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(offon), "Off");
 		
-	GtkWidget *pos = gtk_combo_box_text_new();
+	pos = gtk_combo_box_text_new();
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Same as");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Left of");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Right of");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Above of");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Below of");
-	GtkWidget *outcombo2 = gtk_combo_box_text_new();
+	outcombo2 = gtk_combo_box_text_new();
 
-	GtkWidget *slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 35, 200, 100);
+	slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 35, 200, 100);
 	gtk_scale_set_draw_value(GTK_SCALE(slider), TRUE);
 	gtk_widget_set_size_request(slider, 200, 50);
 	gtk_range_set_value(GTK_RANGE(slider), 100);
 	
 	
-	GtkWidget *scacombo = gtk_combo_box_text_new();
+	scacombo = gtk_combo_box_text_new();
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Full");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Center");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Aspect");
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "1:1");
-	GtkWidget *scalabel = gtk_label_new("Scaling Mode:");
-	GtkWidget *outlabel = gtk_label_new("Output:");
-	GtkWidget *poslabel = gtk_label_new("Position:");
+	scalabel = gtk_label_new("Scaling Mode:");
+	outlabel = gtk_label_new("Output:");
+	poslabel = gtk_label_new("Position:");
 		
-	GtkWidget *defbtn    = gtk_button_new_with_label("Default");
+	defbtn    = gtk_button_new_with_label("Default");
 		gtk_widget_set_tooltip_text(defbtn, "Ctrl+D");
-	GtkWidget *applybtn  = gtk_button_new_with_label("Apply");
+	applybtn  = gtk_button_new_with_label("Apply");
 
 	// Get the Values of comboboxes
 	resolutions = get_resolutions();
@@ -249,7 +176,7 @@ if(testmode)
 	free(outputs);
 	
 	// Open Extra option is there is more than one option
-	GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(outcombo));
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(outcombo));
 	int num_rows = gtk_tree_model_iter_n_children(model, NULL);
 	if (!num_rows == 1 || testmode == 1) 
 	{
@@ -295,249 +222,13 @@ if(testmode)
 	gtk_grid_attach(GTK_GRID(grid), applybtn, 1, 8, 1, 1);
 	
 
-
-	
-	//button void
-	void on_default_button_clicked(GtkButton *button, gpointer user_data) 
-	{
-	const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
-	
-	command = (char*) malloc(sizeof(char) * 100);
-	sprintf(command, "xrandr --output %s --auto --scale 1 --rotate normal", output);
-	printf("Reverted to default configuration\n");
-	system(command);
-	free(command);
-	gtk_range_set_value(GTK_RANGE(slider), 100);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(rescombo), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(rotcombo), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(scacombo), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
-	}
-	
-	void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
-	{
-			const char *cpos;
-		int ps;
-		const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
-		const char *opwr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(offon));
-		const char *output2 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo2));
-		const char *resolution = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(rescombo));
-		const char *refresh_rate = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(refcombo));
-		const char *rotation = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(rotcombo));
-		const gchar *active_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(pos));
-		const char *scalingmode = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(scacombo));
-		
-		if (opwr == "On")
-		{
-		ps = 0;
-		}
-		else if (opwr == "Off")
-		{
-		ps = 1;
-		}
-		
-		if (active_text != NULL) 
-		{
-			if (g_strcmp0(active_text, "Same as") == 0) 
-			{
-				cpos = "--same-as";
-			}
-			else if (g_strcmp0(active_text, "Left of") == 0) 
-			{
-				cpos = "--left-of";
-			} 
-			else if (g_strcmp0(active_text, "Right of") == 0) 
-			{
-				cpos = "--right-of";
-			} 
-			else if (g_strcmp0(active_text, "Above of") == 0) 
-			{
-				cpos = "--above";
-			} 
-			else if (g_strcmp0(active_text, "Below of") == 0) 
-			{
-				cpos = "--below";
-			}
-		}
-		
-int sld = gtk_range_get_value(GTK_RANGE(slider));
-double scl = (double)(sld) / (double)(100);
-char slider[16];
-snprintf(slider, sizeof(slider), "%.2f", scl);
-
-// Replace commas with periods
-char *ptr = strchr(slider, ',');
-while (ptr != NULL) 
-{
-	*ptr = '.';
-	ptr = strchr(ptr, ',');
-}
-		
-	command = (char*) malloc(sizeof(char) * 100);
-		
-		if (ps == 1) 
-		{
-			sprintf(command, "xrandr --output %s --off ", output);
-		}
-		else if (num_rows > 1 && sm == 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, rotation, slider, scalingmode, cpos, output2);
-		}
-		else if (sm == 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, rotation, slider, scalingmode);
-		}
-		else if (num_rows > 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, rotation, slider, cpos, output2);
-		}
-		else if (num_rows == 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, rotation, slider);
-		}
-		
- printf("%s\n", command);
-	
-	system(command);
-	}
-	
-void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata)
-{
-	if (nocsd == 1) {
-		if (access("/usr/bin/sgrandr-cr", F_OK) == 0) {
-			system("/usr/bin/sgrandr-cr --nocsd");
-		} else if (access("./sgrandr-cr", F_OK) == 0) {
-			system("./sgrandr-cr --nocsd");
-		} else {
-			printf("\033[1;31mERROR\033[0m: sgrandr-cr not detected, are you in testmode?\n");
-		}
-	} else {
-		if (access("/usr/bin/sgrandr-cr", F_OK) == 0) {
-			system("/usr/bin/sgrandr-cr");
-		} else if (access("./sgrandr-cr", F_OK) == 0) {
-			system("./sgrandr-cr");
-		} else {
-			printf("\033[1;31mERROR\033[0m: sgrandr-cr not detected, are you in testmode?\n");
-		}
-	}
-}
-
-	
-	void on_submenu_item4_selected(GtkMenuItem *menuitem, gpointer userdata) 
-	{
-		printf("Program restarted\n");
-	   char *args[] = {argv[0], NULL};
-		execvp(args[0], args);
-	}
-	
-	void on_submenu_item5_selected(GtkMenuItem *menuitem, gpointer userdata) 
-	{
-		on_apply_button_clicked(NULL, NULL);
-
-	GtkWidget *dialog = gtk_file_chooser_dialog_new("Save resolutions", GTK_WINDOW(userdata), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
-
-	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
-	if (result == GTK_RESPONSE_ACCEPT) 
-	{
-		char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-
-		FILE *file = fopen(filename, "w");
-		if (file == NULL) 
-		{
-			g_print("ERROR: Can't open file\n");
-			g_free(filename);
-			gtk_widget_destroy(dialog);
-			return;
-		}
-
-
-		char* savedcmd = (char*) malloc(sizeof(char) * 100);
-		int i, j = 0;
-
-		for (i = 0; command[i] != '\0'; i++) 
-			{
-			if (command[i] != '*') 
-				{
-				savedcmd[j] = command[i];
-				j++;
-				}
-			}
-	savedcmd[j] = '\0';
-
-		fputs("#!/bin/sh", file);
-		fputs("\n", file);
-		fputs(savedcmd, file);
-		printf("File saved: %s", filename);
-		
-		char chmodCommand[100];
-		sprintf(chmodCommand, "chmod +x %s", filename);
-		system(chmodCommand);
-		fclose(file);
-		g_free(filename);
-	}
-
-	gtk_widget_destroy(dialog);
-		
-}
-	
-	void on_submenu_item2_toggled(GtkCheckMenuItem *menu_item,void *ptr, gpointer user_data) 
-	{
-		
-	if (gtk_check_menu_item_get_active(menu_item)) 
-		{
-				gtk_widget_show(scacombo);
-				gtk_widget_show(scalabel);
-				int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
-				*int_ptr = 1;
-		} 
-	else 
-		{
-				gtk_widget_hide(scacombo);
-				gtk_widget_hide(scalabel);
-				int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
-				*int_ptr = 0;
-		}
-	}
-	
-	void on_submenu_item3_selected(GtkMenuItem *menuitem, gpointer userdata) 
-	{
-		dialog = gtk_about_dialog_new();
-
-	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR");
-	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 ItzSelenux for Simple GTK Desktop Environment");
-	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "SGDE Display Configurator");
-	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
-	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
-	gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_GPL_3_0);
-	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
-	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-	
-	}
-	
-gboolean on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
-{
-	if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
-		GtkWidget *submenu = GTK_WIDGET(data);
-		gtk_menu_popup_at_pointer(GTK_MENU(submenu), NULL);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-
-	g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), NULL);
+	g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), &num_rows);
 	g_signal_connect(defbtn, "clicked", G_CALLBACK(on_default_button_clicked), NULL);
 	g_signal_connect(rescombo, "changed", G_CALLBACK(on_rescombo_changed), refcombo);
 
 		// Connect the submenu items to the callback function
 	g_signal_connect(submenu_item1, "activate", G_CALLBACK(on_submenu_item1_selected), NULL);
-	g_signal_connect(submenu_item4, "activate", G_CALLBACK(on_submenu_item4_selected), NULL);
+	g_signal_connect(submenu_item4, "activate", G_CALLBACK(restart_program), pm);
 	g_signal_connect(submenu_item5, "activate", G_CALLBACK(on_submenu_item5_selected), NULL);
 	g_signal_connect(submenu_item2, "toggled", G_CALLBACK(on_submenu_item2_toggled), &sm);
 	g_signal_connect(submenu_item3, "activate", G_CALLBACK(on_submenu_item3_selected), NULL);
@@ -561,7 +252,8 @@ gboolean on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data
 	{
 		printf("sgrandr-cr detected \n");
 	} 
-	else {
+	else
+	{
 		printf("\033[1;33mWARNING\033[0m: sgrandr-cr not detected, hiding button.\n");
 		gtk_widget_hide(submenu_item1);
 	}
