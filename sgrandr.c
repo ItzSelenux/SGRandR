@@ -178,7 +178,7 @@ if(testmode)
 	// Open Extra option is there is more than one option
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(outcombo));
 	int num_rows = gtk_tree_model_iter_n_children(model, NULL);
-	if (!num_rows == 1 || testmode == 1) 
+	if (!num_rows == 0 || testmode == 1) 
 	{
 		gtk_grid_attach(GTK_GRID(grid), applybtn, 2, 8, 1, 1);
 		gtk_grid_attach(GTK_GRID(grid), defbtn,   1, 8, 1, 1);
@@ -259,7 +259,7 @@ if(testmode)
 	}
 	
 		gtk_widget_show_all(window);
-	if (!num_rows == 1 || testmode == 1) 
+	if (!num_rows == 0 || testmode == 1) 
 	{
 		gtk_widget_show(pos);
 		gtk_widget_show(offon);
