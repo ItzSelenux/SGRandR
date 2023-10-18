@@ -9,7 +9,8 @@
 int sm = 0;
 char *command;
 int nocsd = 0;
-
+int num_rows;
+int *num_rows_ptr;
 //logic data
 char **resolutions;
 char **rates;
@@ -85,7 +86,7 @@ void on_entry_changed(GtkEntry *entry, gpointer user_data)
 void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
 {
 	int *num_rows_ptr = (int *)user_data;
-	int num_rows = *num_rows_ptr;
+	num_rows = *num_rows_ptr;
 
 	const char *cpos;
 	int ps;
@@ -478,7 +479,7 @@ gtk_widget_destroy(dialog);
 
 void on_submenu_item5_selected(GtkMenuItem *menuitem, gpointer userdata) 
 {
-	on_apply_button_clicked(NULL, NULL);
+	on_apply_button_clicked(NULL, &num_rows);
 
 	GtkWidget *dialog5 = gtk_file_chooser_dialog_new("Save resolutions", GTK_WINDOW(userdata), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
 
@@ -525,10 +526,6 @@ void on_submenu_item5_selected(GtkMenuItem *menuitem, gpointer userdata)
 	gtk_widget_destroy(dialog5);
 
 }
-
-
-
-
 
 void show_success_dialog(GtkWindow *parent) 
 {

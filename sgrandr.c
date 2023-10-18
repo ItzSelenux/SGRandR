@@ -8,7 +8,7 @@
 	}
 	else
 	{
-		pm = "sgramdr";
+		pm = "sgrandr";
 	}
 
 	int testmode = 0;
@@ -44,7 +44,7 @@ if(testmode)
 	gtk_widget_set_size_request(window, 400, 300);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-			theme = gtk_icon_theme_get_default();
+	theme = gtk_icon_theme_get_default();
 	info = gtk_icon_theme_lookup_icon(theme, "video-display", 48, 0);
 	if (info != NULL)
 	{
@@ -177,7 +177,7 @@ if(testmode)
 
 	// Open Extra option is there is more than one option
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(outcombo));
-	int num_rows = gtk_tree_model_iter_n_children(model, NULL);
+	num_rows = gtk_tree_model_iter_n_children(model, NULL);
 	if (!num_rows == 1 || testmode == 1)
 	{
 		gtk_grid_attach(GTK_GRID(grid), applybtn, 2, 8, 1, 1);
