@@ -1,6 +1,8 @@
 [Desktop Entry]
 Name=Display Settings
+Name[es]=Ajustes de pantalla
 Comment=Change Resolutions, Refresh rate, Rotate, Scale, on/off output and add custom resolutions
+Comment[es]=Cambia resoluciones, tasa de refresco, rotación, escalado, encendido/apagado de las salidas y añade resoluciones personalizadas
 Exec=sgrandr
 Icon=video-display
 Terminal=false
@@ -12,5 +14,6 @@ Actions=Option2;
 
 [Desktop Action Option2]
 Name=Add a custom resolution
+Name[es]=Añadir una resolución personalizada
 Exec=sgrandr-cr
 

@@ -1,0 +1,215 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ItzSelenux
+# This file is distributed under the same license as the sgrandr package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sgrandr 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-10-27 20:50-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: sgrandr.c:44
+msgid "Display Settings"
+msgstr "Ajustes de pantalla"
+
+#: sgrandr.c:84
+msgid "Add a custom resolution"
+msgstr "Añadir una resolución personalizada"
+
+#: sgrandr.c:85
+msgid "Show \"Scaling mode \" option"
+msgstr "Mostrar opción \"Modo de escalado\""
+
+#: sgrandr.c:86
+msgid "Reload Program"
+msgstr "Recargar programa"
+
+#: sgrandr.c:87
+msgid "Save Configuration"
+msgstr "Guardar configuración"
+
+#: sgrandr.c:88 sgrandr-cr.c:54 sgrandr-cr.c:55
+msgid "About"
+msgstr "Acerca de"
+
+#: sgrandr.c:122
+msgid "normal"
+msgstr "normal"
+
+#: sgrandr.c:123
+msgid "left"
+msgstr "izquierda"
+
+#: sgrandr.c:124
+msgid "right"
+msgstr "derecha"
+
+#: sgrandr.c:125
+msgid "inverted"
+msgstr "invertido"
+
+#: sgrandr.c:129
+msgid "On"
+msgstr "Encendido"
+
+#: sgrandr.c:130
+msgid "Off"
+msgstr "Apagado"
+
+#: sgrandr.c:133
+msgid "Same as"
+msgstr "Igual que"
+
+#: sgrandr.c:134
+msgid "Left of"
+msgstr "A la izquierda de"
+
+#: sgrandr.c:135
+msgid "Right of"
+msgstr "A la derecha de"
+
+#: sgrandr.c:136
+msgid "Above of"
+msgstr "Encima de"
+
+#: sgrandr.c:137
+msgid "Below of"
+msgstr "Abajo de"
+
+#: sgrandr.c:147
+msgid "Full"
+msgstr "Completo"
+
+#: sgrandr.c:148
+msgid "Center"
+msgstr "Centrado"
+
+#: sgrandr.c:149
+msgid "Aspect"
+msgstr "Aspecto"
+
+#: sgrandr.c:150
+msgid "1:1"
+msgstr "1:1"
+
+#: sgrandr.c:151
+msgid "Scaling Mode:"
+msgstr "Modo de escalado:"
+
+#: sgrandr.c:152 sgrandr-cr.c:111 sgrandr-cr.c:112
+msgid "Output:"
+msgstr "Salida:"
+
+#: sgrandr.c:153
+msgid "Position:"
+msgstr "Posición:"
+
+#: sgrandr.c:155
+msgid "Default"
+msgstr "Predeterminado"
+
+#: sgrandr.c:157
+msgid "Apply"
+msgstr "Aplicar"
+
+#: sgrandr.c:207
+msgid "Resolution:"
+msgstr "Resolución:"
+
+#: sgrandr.c:210 sgrandr-cr.c:108 sgrandr-cr.c:109
+msgid "Refresh Rate:"
+msgstr "Tasa de refresco:"
+
+#: sgrandr.c:213
+msgid "Rotation:"
+msgstr "Rotación:"
+
+#: sgrandr.c:216
+msgid "Scale (%):"
+msgstr "Escala (%):"
+
+#: sgrandr-cr.c:20 sgrandr-cr.c:21
+msgid "Create a new resolution"
+msgstr "Crear una nueva resolución"
+
+#: sgrandr-cr.c:90
+msgid "Generate"
+msgstr "Generar"
+
+#: sgrandr-cr.c:102 sgrandr-cr.c:103
+msgid "Width:"
+msgstr "Ancho:"
+
+#: sgrandr-cr.c:105 sgrandr-cr.c:106
+msgid "Height:"
+msgstr "Alto:"
+
+#: sgrandr-cr.c:115 sgrandr-cr.c:116
+msgid ""
+"WARNING: adding a custom resolution may cause unexpected results, \n"
+" like black screen if is unsopported by the Display or errors on resolutions "
+"list, \n"
+" you can set default configuration with Ctrl+D"
+msgstr ""
+"ADVERTENCIA: añadir una resolución personalizada puede causar resultados "
+"inesperados, \n"
+" como una pantalla negra si no es soportado por el monitor o errores en la "
+"lista de resoluciones, \n"
+"  puedes aplicar la configuración por defecto con Ctrl+D"
+
+#: sgrandr.h:487
+msgid "SGDE Display Configurator"
+msgstr "SGDE Configurador de pantalla"
+
+#: sgrandr.h:489
+msgid "Project WebSite"
+msgstr "Sitio web del proyecto"
+
+#: sgrandr.h:500 sgrandr.h:576
+msgid "Save resolutions"
+msgstr "Guardar resoluciones"
+
+#: sgrandr.h:500 sgrandr.h:576
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: sgrandr.h:500 sgrandr.h:576
+msgid "Save"
+msgstr "Guardar"
+
+#: sgrandr.h:552
+msgid ""
+"Commands executed, please close the program and DON'T execute again the same "
+"command"
+msgstr ""
+"Comandos ejecutados, por favor cierre el programa y NO ejecute otra vez el "
+"mismocomando"
+
+#: sgrandr.h:641
+msgid "Commands for custom resolution"
+msgstr "Comandos para la resolución personalizada"
+
+#: sgrandr.h:674
+msgid "Copy this commands into a Terminal Window\n"
+msgstr "Copiar estos comandos a una ventana de terminal\n"
+
+#: sgrandr.h:718
+msgid "Save into a file"
+msgstr "Guardar en un archivo"
+
+#: sgrandr.h:719
+msgid "Execute commands"
+msgstr "Ejecutar comandos"
+
+#: sgrandr.h:720
+msgid "OK"
+msgstr "OK"

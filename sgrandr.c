@@ -10,6 +10,7 @@
 	{
 		pm = "sgrandr";
 	}
+	locale();
 
 	int testmode = 0;
 
@@ -39,10 +40,14 @@ if(testmode)
 
 	//Main window
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "Display Settings - SGRandR");
+	const gchar *title = "%s - SGRandR";
+	const gchar *translatedTitle = _("Display Settings");
+	gchar *formattedTitle = g_markup_printf_escaped(title, translatedTitle);
+	gtk_window_set_title(GTK_WINDOW(window), formattedTitle);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 	gtk_widget_set_size_request(window, 400, 300);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
+	g_free(formattedTitle);
 
 	theme = gtk_icon_theme_get_default();
 	info = gtk_icon_theme_lookup_icon(theme, "video-display", 48, 0);
@@ -66,7 +71,9 @@ if(testmode)
 	gtk_container_add(GTK_CONTAINER(button), image);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
 	wtitle = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(wtitle), "<b>Display Settings - SGRandR</b>");
+	const gchar *header = "<b>%s - SGRandR</b>";
+    gchar *formattedHeader = g_markup_printf_escaped(header, translatedTitle);
+	gtk_label_set_markup(GTK_LABEL(wtitle), formattedHeader);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
 
 	// Create the submenu
@@ -74,11 +81,11 @@ if(testmode)
 
 	// Create the submenu items
 
-	submenu_item1 = gtk_menu_item_new_with_label("Add a custom resolution");
-	submenu_item2 = gtk_check_menu_item_new_with_label("Show \"Scaling mode \" option");
-	submenu_item4 = gtk_menu_item_new_with_label("Reload Program");
-	submenu_item5 = gtk_menu_item_new_with_label("Save Configuration");
-	submenu_item3 = gtk_menu_item_new_with_label("About");
+	submenu_item1 = gtk_menu_item_new_with_label(_("Add a custom resolution"));
+	submenu_item2 = gtk_check_menu_item_new_with_label(_("Show \"Scaling mode \" option"));
+	submenu_item4 = gtk_menu_item_new_with_label(_("Reload Program"));
+	submenu_item5 = gtk_menu_item_new_with_label(_("Save Configuration"));
+	submenu_item3 = gtk_menu_item_new_with_label(_("About"));
 
 
 	// Add the submenu items to the submenu
@@ -112,22 +119,22 @@ if(testmode)
 
 	refcombo = gtk_combo_box_text_new();
 	rotcombo = gtk_combo_box_text_new();
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "normal");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "left");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "right");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "inverted");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("normal"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("left"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("right"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("inverted"));
 
 	outcombo = gtk_combo_box_text_new();
 	offon = gtk_combo_box_text_new();
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(offon), "On");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(offon), "Off");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(offon), _("On"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(offon), _("Off"));
 
 	pos = gtk_combo_box_text_new();
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Same as");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Left of");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Right of");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Above of");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), "Below of");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), _("Same as"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), _("Left of"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), _("Right of"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), _("Above of"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(pos), _("Below of"));
 	outcombo2 = gtk_combo_box_text_new();
 
 	slider = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 35, 200, 100);
@@ -137,17 +144,17 @@ if(testmode)
 
 
 	scacombo = gtk_combo_box_text_new();
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Full");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Center");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "Aspect");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), "1:1");
-	scalabel = gtk_label_new("Scaling Mode:");
-	outlabel = gtk_label_new("Output:");
-	poslabel = gtk_label_new("Position:");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), _("Full"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), _("Center"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), _("Aspect"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(scacombo), _("1:1"));
+	scalabel = gtk_label_new(_("Scaling Mode:"));
+	outlabel = gtk_label_new(_("Output:"));
+	poslabel = gtk_label_new(_("Position:"));
 
-	defbtn    = gtk_button_new_with_label("Default");
+	defbtn    = gtk_button_new_with_label(_("Default"));
 		gtk_widget_set_tooltip_text(defbtn, "Ctrl+D");
-	applybtn  = gtk_button_new_with_label("Apply");
+	applybtn  = gtk_button_new_with_label(_("Apply"));
 
 	// Get the Values of comboboxes
 	resolutions = get_resolutions();
@@ -197,16 +204,16 @@ if(testmode)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
 
 	//Items Grid position
-	gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Resolution:"), 0, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Resolution:")), 0, 0, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), rescombo, 1, 0, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Refresh Rate:"), 0, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Refresh Rate:")), 0, 1, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), refcombo, 1, 1, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Rotation:"), 0, 2, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Rotation:")), 0, 2, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), rotcombo, 1, 2, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Scale (%):"), 0, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Scale (%):")), 0, 4, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), slider,   1, 4, 1, 1);
 
 	gtk_grid_attach(GTK_GRID(grid), poslabel, 0, 5, 1, 1);

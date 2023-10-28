@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "libintl.h"
+#include "locale.h"
+
+//locale data
+#define _(String) gettext(String)
+#define GETTEXT_PACKAGE "sgrandr"
+#define localedir "locale"
 
 //system data
 #define BUFFER_SIZE 1024
@@ -60,6 +67,15 @@ GtkWidget *rate;
 
 char xcmd0[100];
 char xcmd1[100];
+
+//init locale
+int locale()
+{
+setlocale(LC_ALL, "");
+bindtextdomain(GETTEXT_PACKAGE, localedir);
+textdomain(GETTEXT_PACKAGE);
+}
+
 
 void on_entry_changed(GtkEntry *entry, gpointer user_data) 
 {
@@ -468,9 +484,9 @@ dialog = gtk_about_dialog_new();
 
 gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR");
 gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 ItzSelenux for Simple GTK Desktop Environment");
-gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), "SGDE Display Configurator");
+gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("SGDE Display Configurator"));
 gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
-gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), "Project WebSite");
+gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), _("Project WebSite"));
 gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_GPL_3_0);
 gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
 gtk_dialog_run(GTK_DIALOG(dialog));
@@ -481,7 +497,7 @@ void on_submenu_item5_selected(GtkMenuItem *menuitem, gpointer userdata)
 {
 	on_apply_button_clicked(NULL, &num_rows);
 
-	GtkWidget *dialog5 = gtk_file_chooser_dialog_new("Save resolutions", GTK_WINDOW(userdata), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
+	GtkWidget *dialog5 = gtk_file_chooser_dialog_new(_("Save resolutions"), GTK_WINDOW(userdata), GTK_FILE_CHOOSER_ACTION_SAVE, _("Cancel"), GTK_RESPONSE_CANCEL, _("Save"), GTK_RESPONSE_ACCEPT, NULL);
 
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog5));
 	if (result == GTK_RESPONSE_ACCEPT) 
@@ -533,7 +549,7 @@ void show_success_dialog(GtkWindow *parent)
 											   GTK_DIALOG_MODAL,
 											   GTK_MESSAGE_INFO,
 											   GTK_BUTTONS_OK,
-											   "Commands executed, please close the program and DON\'T execute again the same command");
+											   _("Commands executed, please close the program and DON\'T execute again the same command"));
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
@@ -557,7 +573,7 @@ void on_save_button_clicked(GtkButton *button, gpointer user_data)
 	const char *text0 = gtk_label_get_text(GTK_LABEL(global_label0));
 	const char *text3 = gtk_label_get_text(GTK_LABEL(global_label3));
 
-	GtkWidget *dialog = gtk_file_chooser_dialog_new("Save resolutions", GTK_WINDOW(user_data), GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel", GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
+	GtkWidget *dialog = gtk_file_chooser_dialog_new(_("Save resolutions"), GTK_WINDOW(user_data), GTK_FILE_CHOOSER_ACTION_SAVE, _("Cancel"), GTK_RESPONSE_CANCEL, _("Save"), GTK_RESPONSE_ACCEPT, NULL);
 
 	gint result = gtk_dialog_run(GTK_DIALOG(dialog));
 	if (result == GTK_RESPONSE_ACCEPT) 
@@ -621,8 +637,11 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 	}
 
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "SGRandR - Commands for custom resolution");
-	
+	const gchar *markupTitle = "SGRandR - %s";
+	const gchar *translatedTitle = _("Commands for custom resolution");
+	gchar *formattedMarkupTitle = g_markup_printf_escaped(markupTitle, translatedTitle);
+	gtk_window_set_title(GTK_WINDOW(window), formattedMarkupTitle);
+
 	GtkIconTheme *theme = gtk_icon_theme_get_default();
 	GtkIconInfo *info = gtk_icon_theme_lookup_icon(theme, "video-display", 48, 0);
 
@@ -634,7 +653,9 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wicon);
 
 	GtkWidget *wtitle = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(wtitle), "<b> Commands for custom resolution - SGRandR</b>");
+	const gchar *markupHeader = "<b>%s - SGRandR</b>";
+	gchar *formattedMarkupHeader = g_markup_printf_escaped(markupTitle, translatedTitle);
+	gtk_label_set_markup(GTK_LABEL(wtitle), formattedMarkupHeader);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
 	if (nocsd == 0 )
 	{
@@ -650,7 +671,7 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 
 	// Create a label 
 	const char *display = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
-	GtkWidget *label0 = gtk_label_new("Copy this commands into a Terminal Window\n");
+	GtkWidget *label0 = gtk_label_new(_("Copy this commands into a Terminal Window\n"));
 	GtkWidget *label1 = gtk_label_new("");
 	GtkWidget *label2 = gtk_label_new("");
 
@@ -694,9 +715,9 @@ xcmd0[strcspn(xcmd0, "\n")] = '\0';
 	gtk_box_pack_start(GTK_BOX(vbox), label0, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), label1, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), label2, FALSE, FALSE, 0);
-	GtkWidget *save_button = gtk_button_new_with_label("Save into a file");
-	GtkWidget *execute_button = gtk_button_new_with_label("Execute commands");
-	GtkWidget *ok_button = gtk_button_new_with_label("OK");
+	GtkWidget *save_button = gtk_button_new_with_label(_("Save into a file"));
+	GtkWidget *execute_button = gtk_button_new_with_label(_("Execute commands"));
+	GtkWidget *ok_button = gtk_button_new_with_label(_("OK"));
 	
 	gtk_box_pack_start(GTK_BOX(vbox), execute_button, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(vbox), save_button, FALSE, FALSE, 0);
