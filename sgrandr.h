@@ -12,6 +12,7 @@
 #define localedir "locale"
 
 //system data
+const char* pver = mver;
 #define BUFFER_SIZE 1024
 int sm = 0;
 char *command;
@@ -483,7 +484,8 @@ GtkWidget *dialog;
 dialog = gtk_about_dialog_new();
 
 gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR");
-gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 ItzSelenux for Simple GTK Desktop Environment");
+gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), pver);
+gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 Simple GTK Desktop Environment");
 gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("SGDE Display Configurator"));
 gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
 gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), _("Project WebSite"));
