@@ -120,11 +120,11 @@ void on_apply_button_clicked(GtkButton *button, gpointer user_data)
 	const gchar *active_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(pos));
 	const char *scalingmode = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(scacombo));
 
-	if (opwr == _("On"))
+	if (g_strcmp0(opwr, _("On")) == 0)
 	{
 		ps = 0;
 	}
-	else if (opwr == _("Off"))
+	else if (g_strcmp0(opwr, _("Off")) == 0)
 	{
 	ps = 1;
 	}
