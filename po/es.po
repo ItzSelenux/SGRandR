@@ -41,22 +41,6 @@ msgstr "Guardar configuración"
 msgid "About"
 msgstr "Acerca de"
 
-#: sgrandr.c:122
-msgid "normal"
-msgstr "normal"
-
-#: sgrandr.c:123
-msgid "left"
-msgstr "izquierda"
-
-#: sgrandr.c:124
-msgid "right"
-msgstr "derecha"
-
-#: sgrandr.c:125
-msgid "inverted"
-msgstr "invertido"
-
 #: sgrandr.c:129
 msgid "On"
 msgstr "Encendido"

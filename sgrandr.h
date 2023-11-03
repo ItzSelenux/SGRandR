@@ -9,7 +9,7 @@
 //locale data
 #define _(String) gettext(String)
 #define GETTEXT_PACKAGE "sgrandr"
-#define localedir "locale"
+#define localedir "/usr/share/locale"
 
 //system data
 const char* pver = mver;

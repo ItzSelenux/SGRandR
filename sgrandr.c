@@ -119,10 +119,10 @@ if(testmode)
 
 	refcombo = gtk_combo_box_text_new();
 	rotcombo = gtk_combo_box_text_new();
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("normal"));
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("left"));
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("right"));
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("inverted"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "normal");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "left");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "right");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "inverted");
 
 	outcombo = gtk_combo_box_text_new();
 	offon = gtk_combo_box_text_new();
