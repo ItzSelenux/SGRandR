@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR ItzSelenux
+# Copyright (C) YEAR SGDE
 # This file is distributed under the same license as the sgrandr package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sgrandr 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-27 20:50-0300\n"
+"POT-Creation-Date: 2023-11-03 16:55-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,47 +41,63 @@ msgstr "Guardar configuración"
 msgid "About"
 msgstr "Acerca de"
 
-#: sgrandr.c:129
+#: sgrandr.c:122 sgrandr.h:176
+msgid "normal"
+msgstr "normal"
+
+#: sgrandr.c:123 sgrandr.h:180
+msgid "left"
+msgstr "izquierda"
+
+#: sgrandr.c:124 sgrandr.h:184
+msgid "right"
+msgstr "derecha"
+
+#: sgrandr.c:125 sgrandr.h:188
+msgid "inverted"
+msgstr "invertido"
+
+#: sgrandr.c:129 sgrandr.h:123
 msgid "On"
 msgstr "Encendido"
 
-#: sgrandr.c:130
+#: sgrandr.c:130 sgrandr.h:127
 msgid "Off"
 msgstr "Apagado"
 
-#: sgrandr.c:133
+#: sgrandr.c:133 sgrandr.h:134
 msgid "Same as"
 msgstr "Igual que"
 
-#: sgrandr.c:134
+#: sgrandr.c:134 sgrandr.h:138
 msgid "Left of"
 msgstr "A la izquierda de"
 
-#: sgrandr.c:135
+#: sgrandr.c:135 sgrandr.h:142
 msgid "Right of"
 msgstr "A la derecha de"
 
-#: sgrandr.c:136
+#: sgrandr.c:136 sgrandr.h:146
 msgid "Above of"
 msgstr "Encima de"
 
-#: sgrandr.c:137
+#: sgrandr.c:137 sgrandr.h:150
 msgid "Below of"
 msgstr "Abajo de"
 
-#: sgrandr.c:147
+#: sgrandr.c:147 sgrandr.h:157
 msgid "Full"
 msgstr "Completo"
 
-#: sgrandr.c:148
+#: sgrandr.c:148 sgrandr.h:161
 msgid "Center"
 msgstr "Centrado"
 
-#: sgrandr.c:149
+#: sgrandr.c:149 sgrandr.h:165
 msgid "Aspect"
 msgstr "Aspecto"
 
-#: sgrandr.c:150
+#: sgrandr.c:150 sgrandr.h:169
 msgid "1:1"
 msgstr "1:1"
 
@@ -89,7 +105,7 @@ msgstr "1:1"
 msgid "Scaling Mode:"
 msgstr "Modo de escalado:"
 
-#: sgrandr.c:152 sgrandr-cr.c:111 sgrandr-cr.c:112
+#: sgrandr.c:152 sgrandr-cr.c:112
 msgid "Output:"
 msgstr "Salida:"
 
@@ -109,7 +125,7 @@ msgstr "Aplicar"
 msgid "Resolution:"
 msgstr "Resolución:"
 
-#: sgrandr.c:210 sgrandr-cr.c:108 sgrandr-cr.c:109
+#: sgrandr.c:210 sgrandr-cr.c:109
 msgid "Refresh Rate:"
 msgstr "Tasa de refresco:"
 
@@ -121,7 +137,7 @@ msgstr "Rotación:"
 msgid "Scale (%):"
 msgstr "Escala (%):"
 
-#: sgrandr-cr.c:20 sgrandr-cr.c:21
+#: sgrandr-cr.c:21
 msgid "Create a new resolution"
 msgstr "Crear una nueva resolución"
 
@@ -129,15 +145,15 @@ msgstr "Crear una nueva resolución"
 msgid "Generate"
 msgstr "Generar"
 
-#: sgrandr-cr.c:102 sgrandr-cr.c:103
+#: sgrandr-cr.c:103
 msgid "Width:"
 msgstr "Ancho:"
 
-#: sgrandr-cr.c:105 sgrandr-cr.c:106
+#: sgrandr-cr.c:106
 msgid "Height:"
 msgstr "Alto:"
 
-#: sgrandr-cr.c:115 sgrandr-cr.c:116
+#: sgrandr-cr.c:116
 msgid ""
 "WARNING: adding a custom resolution may cause unexpected results, \n"
 " like black screen if is unsopported by the Display or errors on resolutions "
@@ -150,27 +166,27 @@ msgstr ""
 "lista de resoluciones, \n"
 "  puedes aplicar la configuración por defecto con Ctrl+D"
 
-#: sgrandr.h:487
+#: sgrandr.h:487 sgrandr.h:531
 msgid "SGDE Display Configurator"
 msgstr "SGDE Configurador de pantalla"
 
-#: sgrandr.h:489
+#: sgrandr.h:489 sgrandr.h:533
 msgid "Project WebSite"
 msgstr "Sitio web del proyecto"
 
-#: sgrandr.h:500 sgrandr.h:576
+#: sgrandr.h:500 sgrandr.h:576 sgrandr.h:544 sgrandr.h:620
 msgid "Save resolutions"
 msgstr "Guardar resoluciones"
 
-#: sgrandr.h:500 sgrandr.h:576
+#: sgrandr.h:500 sgrandr.h:576 sgrandr.h:544 sgrandr.h:620
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: sgrandr.h:500 sgrandr.h:576
+#: sgrandr.h:500 sgrandr.h:576 sgrandr.h:544 sgrandr.h:620
 msgid "Save"
 msgstr "Guardar"
 
-#: sgrandr.h:552
+#: sgrandr.h:552 sgrandr.h:596
 msgid ""
 "Commands executed, please close the program and DON'T execute again the same "
 "command"
@@ -178,22 +194,22 @@ msgstr ""
 "Comandos ejecutados, por favor cierre el programa y NO ejecute otra vez el "
 "mismocomando"
 
-#: sgrandr.h:641
+#: sgrandr.h:641 sgrandr.h:685
 msgid "Commands for custom resolution"
 msgstr "Comandos para la resolución personalizada"
 
-#: sgrandr.h:674
+#: sgrandr.h:674 sgrandr.h:718
 msgid "Copy this commands into a Terminal Window\n"
 msgstr "Copiar estos comandos a una ventana de terminal\n"
 
-#: sgrandr.h:718
+#: sgrandr.h:718 sgrandr.h:762
 msgid "Save into a file"
 msgstr "Guardar en un archivo"
 
-#: sgrandr.h:719
+#: sgrandr.h:719 sgrandr.h:763
 msgid "Execute commands"
 msgstr "Ejecutar comandos"
 
-#: sgrandr.h:720
+#: sgrandr.h:720 sgrandr.h:764
 msgid "OK"
 msgstr "OK"

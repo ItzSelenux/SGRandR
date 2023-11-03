@@ -104,8 +104,12 @@ void on_apply_button_clicked(GtkButton *button, gpointer user_data)
 {
 	int *num_rows_ptr = (int *)user_data;
 	num_rows = *num_rows_ptr;
+	locale();
 
 	const char *cpos;
+	const char *csca;
+	const char *crot;
+	
 	int ps;
 	const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
 	const char *opwr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(offon));
@@ -116,36 +120,74 @@ void on_apply_button_clicked(GtkButton *button, gpointer user_data)
 	const gchar *active_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(pos));
 	const char *scalingmode = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(scacombo));
 
-	if (opwr == "On")
+	if (opwr == _("On"))
 	{
 		ps = 0;
 	}
-	else if (opwr == "Off")
+	else if (opwr == _("Off"))
 	{
 	ps = 1;
 	}
 
 	if (active_text != NULL) 
 	{
-		if (g_strcmp0(active_text, "Same as") == 0) 
+		if (g_strcmp0(active_text, _("Same as")) == 0) 
 		{
 			cpos = "--same-as";
 		}
-		else if (g_strcmp0(active_text, "Left of") == 0) 
+		else if (g_strcmp0(active_text, _("Left of")) == 0) 
 		{
 			cpos = "--left-of";
 		} 
-		else if (g_strcmp0(active_text, "Right of") == 0) 
+		else if (g_strcmp0(active_text, _("Right of")) == 0) 
 		{
 			cpos = "--right-of";
 		} 
-		else if (g_strcmp0(active_text, "Above of") == 0) 
+		else if (g_strcmp0(active_text, _("Above of")) == 0) 
 		{
 			cpos = "--above";
 		} 
-		else if (g_strcmp0(active_text, "Below of") == 0) 
+		else if (g_strcmp0(active_text, _("Below of")) == 0) 
 		{
 			cpos = "--below";
+		}
+	}
+	if (scalingmode != NULL) 
+	{
+		if (g_strcmp0(scalingmode, _("Full")) == 0) 
+		{
+			csca = "Full";
+		}
+		else if (g_strcmp0(scalingmode, _("Center")) == 0) 
+		{
+			csca = "Center";
+		} 
+		else if (g_strcmp0(scalingmode, _("Aspect")) == 0) 
+		{
+			csca = "Aspect";
+		} 
+		else if (g_strcmp0(scalingmode, _("1:1")) == 0) 
+		{
+			csca = "1:1";
+		}
+	}
+	if (rotation != NULL) 
+	{
+		if (g_strcmp0(rotation, _("normal")) == 0) 
+		{
+			crot = "normal";
+		}
+		else if (g_strcmp0(rotation, _("left")) == 0) 
+		{
+			crot = "left";
+		} 
+		else if (g_strcmp0(rotation, _("right")) == 0) 
+		{
+			crot = "right";
+		} 
+		else if (g_strcmp0(rotation, _("inverted")) == 0) 
+		{
+			crot = "inverted";
 		}
 	}
 
@@ -170,19 +212,19 @@ while (ptr != NULL)
 		}
 		else if (num_rows > 1 && sm == 1) 
 		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, rotation, slider, scalingmode, cpos, output2);
+			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, crot, slider, csca, cpos, output2);
 		}
 		else if (sm == 1) 
 		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, rotation, slider, scalingmode);
+			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, crot, slider, csca);
 		}
 		else if (num_rows > 1) 
 		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, rotation, slider, cpos, output2);
+			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, crot, slider, cpos, output2);
 		}
 		else if (num_rows == 1) 
 		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, rotation, slider);
+			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, crot, slider);
 		}
 		
  printf("%s\n", command);
@@ -281,7 +323,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 					// remove "+" and newlines
 					rate[strcspn(rate, "+\n")] = 0;
 
-					if (!ures && strcmp(rate, "") != 0)
+					if (!ures && strcmp(rate, "") != 0 && strchr(rate, 'x') == NULL)
 					{
 						rates[count] = malloc(strlen(rate) + 1);
 						strcpy(rates[count], rate);

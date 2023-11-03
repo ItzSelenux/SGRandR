@@ -119,10 +119,10 @@ if(testmode)
 
 	refcombo = gtk_combo_box_text_new();
 	rotcombo = gtk_combo_box_text_new();
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "normal");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "left");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "right");
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), "inverted");
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("normal"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("left"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("right"));
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(rotcombo), _("inverted"));
 
 	outcombo = gtk_combo_box_text_new();
 	offon = gtk_combo_box_text_new();
@@ -180,12 +180,12 @@ if(testmode)
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(outcombo2), outputs[i]);
 		free(outputs[i]);
 	}
-	free(outputs);
+	// free(outputs);
 
 	// Open Extra option is there is more than one option
 	model = gtk_combo_box_get_model(GTK_COMBO_BOX(outcombo));
 	num_rows = gtk_tree_model_iter_n_children(model, NULL);
-	if (!num_rows == 1 || testmode == 1)
+	if (outputs[1] != 0 || testmode == 1)
 	{
 		gtk_grid_attach(GTK_GRID(grid), applybtn, 2, 8, 1, 1);
 		gtk_grid_attach(GTK_GRID(grid), defbtn,   1, 8, 1, 1);
@@ -266,7 +266,8 @@ if(testmode)
 	}
 
 		gtk_widget_show_all(window);
-	if (!num_rows == 1 || testmode == 1)
+
+	if (outputs[1] != 0 || testmode == 1)
 	{
 		gtk_widget_show(pos);
 		gtk_widget_show(offon);
@@ -289,6 +290,7 @@ if(testmode)
 	gtk_widget_hide(scacombo);
 	gtk_widget_hide(scalabel);
 	on_rescombo_changed(GTK_COMBO_BOX(rescombo), refcombo);
+	free(outputs);
 	gtk_main();
 
 return 0;
