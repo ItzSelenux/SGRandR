@@ -6,6 +6,8 @@
 #include "libintl.h"
 #include "locale.h"
 
+#include <Xrandr.h>
+
 //locale data
 #define _(String) gettext(String)
 #define GETTEXT_PACKAGE "sgrandr"
