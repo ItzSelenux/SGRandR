@@ -375,7 +375,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 		return;
 	}
 
-	int selected_output = 0;
+	//int selected_output = 0;
 	XRRModeInfo *mode_info;
 
 	char **rates = NULL;
@@ -826,7 +826,7 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wicon);
 
 	GtkWidget *wtitle = gtk_label_new(NULL);
-	const gchar *markupHeader = "<b>%s - SGRandR</b>";
+	//const gchar *markupHeader = "<b>%s - SGRandR</b>";
 	gchar *formattedMarkupHeader = g_markup_printf_escaped(markupTitle, translatedTitle);
 	gtk_label_set_markup(GTK_LABEL(wtitle), formattedMarkupHeader);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
