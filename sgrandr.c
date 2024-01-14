@@ -232,7 +232,6 @@ if(testmode)
 	g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), &num_rows);
 	g_signal_connect(defbtn, "clicked", G_CALLBACK(on_default_button_clicked), NULL);
 	g_signal_connect(rescombo, "changed", G_CALLBACK(on_rescombo_changed), refcombo);
-	g_signal_connect(outcombo, "changed", G_CALLBACK(get_resolutions), refcombo) ;
 
 		// Connect the submenu items to the callback function
 	g_signal_connect(submenu_item1, "activate", G_CALLBACK(on_submenu_item1_selected), NULL);

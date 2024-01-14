@@ -1,7 +1,5 @@
-DATE := $(shell git log -n 1 --format="%ad" --date=format-local:'%Y%m%d/%H:%M:%S')
-
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(DATE)\" -Wall -lX11 -lXrandr
+CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(shell date +'%Y.%m.%d')\"
 LIBS = `pkg-config --libs gtk+-3.0`
 
 # File names

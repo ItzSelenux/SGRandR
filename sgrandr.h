@@ -6,9 +6,6 @@
 #include "libintl.h"
 #include "locale.h"
 
-#include <X11/extensions/Xrandr.h>
-#include <X11/Xlib.h>
-
 //locale data
 #define _(String) gettext(String)
 #define GETTEXT_PACKAGE "sgrandr"
@@ -103,19 +100,6 @@ void on_entry_changed(GtkEntry *entry, gpointer user_data)
 	}
 }
 
-void show_error_dialog(const char *error_message)
-{
-	GtkWidget *dialog;
-	dialog = gtk_message_dialog_new(NULL,
-									GTK_DIALOG_MODAL,
-									GTK_MESSAGE_ERROR,
-									GTK_BUTTONS_OK,
-									"%s",
-									error_message);
-	gtk_dialog_run(GTK_DIALOG(dialog));
-	gtk_widget_destroy(dialog);
-}
-
 void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
 {
 	int *num_rows_ptr = (int *)user_data;
@@ -125,24 +109,16 @@ void on_apply_button_clicked(GtkButton *button, gpointer user_data)
 	const char *cpos;
 	const char *csca;
 	const char *crot;
-
+	
 	int ps;
 	const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
 	const char *opwr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(offon));
 	const char *output2 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo2));
 	const char *resolution = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(rescombo));
-	const char *prerefresh_rate = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(refcombo));
+	const char *refresh_rate = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(refcombo));
 	const char *rotation = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(rotcombo));
 	const gchar *active_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(pos));
 	const char *scalingmode = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(scacombo));
-
-char refresh_rate[50]; 
-	strcpy(refresh_rate, prerefresh_rate);
-	char *hz_position = strstr(refresh_rate, "Hz");
-	if (hz_position != NULL)
-	{
-		*hz_position = '\0';
-	}
 
 	if (g_strcmp0(opwr, _("On")) == 0)
 	{
@@ -227,7 +203,7 @@ while (ptr != NULL)
 	*ptr = '.';
 	ptr = strchr(ptr, ',');
 }
-
+		
 	command = (char*) malloc(sizeof(char) * 100);
 		
 		if (ps == 1) 
@@ -251,46 +227,9 @@ while (ptr != NULL)
 			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, crot, slider);
 		}
 		
-	printf("%s\n", command);
-
-
-	char command_with_stderr[256];
-	snprintf(command_with_stderr, sizeof(command_with_stderr), "%s 2>&1", command);
-
-	FILE *cmd_output = popen(command_with_stderr, "r");
-	if (cmd_output == NULL)
-	{
-		show_error_dialog("Error executing command");
-		return;
-	}
-
-	char output_buffer[1024];
-	size_t read_size;
-	char stderr_buffer[1024];
-	stderr_buffer[0] = '\0';
-	char *error_message = NULL;
+ printf("%s\n", command);
 	
-	while ((read_size = fread(output_buffer, 1, sizeof(output_buffer), cmd_output)) > 0)
-	{
-		output_buffer[read_size] = '\0';
-		strncat(stderr_buffer, output_buffer, sizeof(stderr_buffer) - strlen(stderr_buffer) - 1);
-	}
-
-	int return_code = pclose(cmd_output);
-	
-	if (WIFEXITED(return_code))
-	{
-		int exit_status = WEXITSTATUS(return_code);
-		if (exit_status != 0)
-		{
-			error_message = stderr_buffer;
-		}
-	}
-
-	if (error_message)
-	{
-		show_error_dialog(error_message);
-	}
+	system(command);
 }
 
 gboolean on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
@@ -313,14 +252,14 @@ if (gtk_check_menu_item_get_active(menu_item))
 	{
 			gtk_widget_show(scacombo);
 			gtk_widget_show(scalabel);
-			int *int_ptr = (int *) ptr;
+			int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
 			*int_ptr = 1;
 	} 
 else 
 	{
 			gtk_widget_hide(scacombo);
 			gtk_widget_hide(scalabel);
-			int *int_ptr = (int *) ptr;
+			int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
 			*int_ptr = 0;
 	}
 }
@@ -352,264 +291,196 @@ void restart_program(GtkWidget *widget, gpointer data)
 	execvp(args[0], args);
 }
 
-
-
 static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 {
 	GtkComboBoxText *combo_text = GTK_COMBO_BOX_TEXT(combo_box);
-	const gchar *pres = gtk_combo_box_text_get_active_text(combo_text);
+	   const gchar *pres = gtk_combo_box_text_get_active_text(combo_text);
 
-	Display *display = XOpenDisplay(NULL);
-	if (!display)
+	char *sres = g_strdup_printf("%s ", pres);  // allocate enough space for the copied string and the space character
+
+	char **get_rates()
 	{
-		fprintf(stderr, "Failed to open display\n");
-		return;
-	}
+		char buffer[BUFFER_SIZE];
+		char **rates = malloc(BUFFER_SIZE * sizeof(char *));
+		int count = 0;
 
-	Window root = DefaultRootWindow(display);
-	XRRScreenResources *res = XRRGetScreenResourcesCurrent(display, root);
-	if (!res)
-	{
-		fprintf(stderr, "Failed to get screen resources\n");
-		XCloseDisplay(display);
-		return;
-	}
-
-	//int selected_output = 0;
-	XRRModeInfo *mode_info;
-
-	char **rates = NULL;
-	int rate_count = 0;
-
-	for (int i = 0; i < res->nmode; i++)
-	{
-		mode_info = &res->modes[i];
-		if (g_strstr_len(mode_info->name, -1, pres))
+		FILE *pipe = popen("xrandr", "r");
+		if (!pipe)
 		{
-			int rate = (int)((double)mode_info->dotClock / ((double)mode_info->hTotal * (double)mode_info->vTotal));
-			char *rate_str = g_strdup_printf("%d Hz", rate);
-
-			rates = g_realloc(rates, (rate_count + 1) * sizeof(char *));
-			rates[rate_count] = rate_str;
-			rate_count++;
-		}
-	}
-
-	g_print("Refresh Rates changed to display mode: %s\n", pres);
-
-	GtkComboBox *refcombo = GTK_COMBO_BOX(user_data);
-	gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(refcombo));
-
-	for (int i = 0; i < rate_count; i++)
-	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), rates[i]);
-	}
-
-	gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
-
-	for (int i = 0; i < rate_count; i++)
-	{
-		g_free(rates[i]);
-	}
-	g_free(rates);
-
-	XRRFreeScreenResources(res);
-	XCloseDisplay(display);
-}
-
-
-char** get_resolutions() 
-{
-	Display* display = XOpenDisplay(NULL);
-	if (display == NULL)
-	{
-		fprintf(stderr, "ERROR: Could not open screen\n");
-		return NULL;
-	}
-
-	XRRScreenResources* screenResources = XRRGetScreenResources(display, DefaultRootWindow(display));
-	if (screenResources == NULL)
-	{
-		fprintf(stderr, "ERROR: Could not get screen properties\n");
-		XCloseDisplay(display);
-		return NULL;
-	}
-
-	char** resolutions = malloc((screenResources->nmode + 1) * sizeof(char*));
-	if (resolutions == NULL)
-	{
-		fprintf(stderr, "ERROR: Memory allocation error\n");
-		XCloseDisplay(display);
-		XRRFreeScreenResources(screenResources);
-		return NULL;
-	}
-
-	// fix repeated resolutions
-	char** unique_resolutions = malloc((screenResources->nmode + 1) * sizeof(char*));
-	if (unique_resolutions == NULL)
-	{
-		fprintf(stderr, "ERROR: Memory allocation error\n");
-		XCloseDisplay(display);
-		XRRFreeScreenResources(screenResources);
-		free(resolutions);
-		return NULL;
-	}
-
-	int i, unique_count = 0;
-	for (i = 0; i < screenResources->nmode; i++)
-	{
-		XRRModeInfo* modeInfo = &screenResources->modes[i];
-		char resolutionStr[32];
-		snprintf(resolutionStr, sizeof(resolutionStr), "%dx%d", modeInfo->width, modeInfo->height);
-
-
-		int is_unique = 1;
-		for (int j = 0; j < unique_count; j++)
-		{
-			if (strcmp(resolutionStr, unique_resolutions[j]) == 0)
-			{
-				is_unique = 0;
-				break;
-			}
-		}
-
-		if (is_unique)
-		{
-			resolutions[unique_count] = strdup(resolutionStr);
-			unique_resolutions[unique_count] = strdup(resolutionStr);
-			unique_count++;
-		}
-	}
-
-	resolutions[unique_count] = NULL;
-
-	for (int j = 0; j < unique_count; j++)
-	{
-		free(unique_resolutions[j]);
-	}
-	free(unique_resolutions);
-
-	XRRFreeScreenResources(screenResources);
-	XCloseDisplay(display);
-	return resolutions;
-}
-
-char** get_rates() 
-{
-	Display* display = XOpenDisplay(NULL);
-	if (display == NULL)
-	{
-		fprintf(stderr, "ERROR: Could not open screen\n");
-		return NULL;
-	}
-
-	XRRScreenResources* screenResources = XRRGetScreenResources(display, DefaultRootWindow(display));
-	if (screenResources == NULL)
-	{
-		fprintf(stderr, "ERROR: Could not get screen properties\n");
-		XCloseDisplay(display);
-		return NULL;
-	}
-
-	char** rates = malloc((screenResources->nmode + 1) * sizeof(char*));
-	if (rates == NULL)
-	{
-		fprintf(stderr, "ERROR: Memory allocation error\n");
-		XCloseDisplay(display);
-		XRRFreeScreenResources(screenResources);
-		return NULL;
-	}
-
-	int unique_count = 0;
-	for (int i = 0; i < screenResources->nmode; i++)
-	{
-		XRRModeInfo* modeInfo = &screenResources->modes[i];
-
-		int refresh_rate = modeInfo->dotClock / (modeInfo->hTotal * modeInfo->vTotal);
-		int is_unique = 1;
-
-		// Convert the refresh rate to a string
-		char rateStr[16];
-		snprintf(rateStr, sizeof(rateStr), "%d Hz", refresh_rate);
-
-		for (int j = 0; j < unique_count; j++)
-		{
-			if (strcmp(rateStr, rates[j]) == 0)
-			{
-				is_unique = 0;
-				break;
-			}
-		}
-
-		if (is_unique)
-		{
-			rates[unique_count] = strdup(rateStr);
-			unique_count++;
-		}
-	}
-
-	rates[unique_count] = NULL;
-
-	XRRFreeScreenResources(screenResources);
-	XCloseDisplay(display);
-	return rates;
-}
-
-
-
-
-char** get_outputs()
-{
-	Display* display = XOpenDisplay(NULL);
-	if (display == NULL)
-	{
-		fprintf(stderr, "ERROR: Could not open display\n");
-		return NULL;
-	}
-
-	XRRScreenResources* screenResources = XRRGetScreenResources(display, DefaultRootWindow(display));
-	if (screenResources == NULL)
-	{
-		fprintf(stderr, "ERROR: Could not get screen properties\n");
-		XCloseDisplay(display);
-		return NULL;
-	}
-
-	char** outputs = malloc((screenResources->noutput + 1) * sizeof(char*));
-	if (outputs == NULL)
-	{
-		fprintf(stderr, "ERROR: Memory allocation error\n");
-		XCloseDisplay(display);
-		XRRFreeScreenResources(screenResources);
-		return NULL;
-	}
-
-	int outputCount = 0;
-	for (int i = 0; i < screenResources->noutput; i++)
-	{
-		XRROutputInfo* outputInfo = XRRGetOutputInfo(display, screenResources, screenResources->outputs[i]);
-		if (outputInfo == NULL)
-		{
-			fprintf(stderr, "ERROR: Could not get details of the output\n");
-			XCloseDisplay(display);
-			XRRFreeScreenResources(screenResources);
-			free(outputs);
+			fprintf(stderr, "Error executing command.\n");
 			return NULL;
 		}
 
-		if (outputInfo->connection == RR_Connected)
+		int ures = 1;
+
+		while (fgets(buffer, BUFFER_SIZE, pipe)) 
 		{
-			outputs[outputCount] = strdup(outputInfo->name);
-			outputCount++;
+			if (strstr(buffer, sres)) 
+			{
+				char *rate = strtok(buffer, " ");
+				while (rate != NULL && count < BUFFER_SIZE)
+				{  // check if count is less than BUFFER_SIZE before accessing rates array
+					// remove "+" and newlines
+					rate[strcspn(rate, "+\n")] = 0;
+
+					if (!ures && strcmp(rate, "") != 0 && strchr(rate, 'x') == NULL)
+					{
+						rates[count] = malloc(strlen(rate) + 1);
+						strcpy(rates[count], rate);
+
+						count++;
+					}
+
+					if (ures)
+					{
+						ures = 0;
+					}
+
+					rate = strtok(NULL, " ");
+				}
+			}
 		}
 
-		XRRFreeOutputInfo(outputInfo);
+		pclose(pipe);
+
+		// Add NULL terminator to array
+		if (count < BUFFER_SIZE) 
+		{
+			rates[count] = NULL;
+		}
+		else
+		{
+			fprintf(stderr, "Array index out of bounds.\n");
+		}
+
+		return rates;
 	}
 
-	outputs[outputCount] = NULL;
+	char **rates = get_rates();
 
-	XRRFreeScreenResources(screenResources);
-	XCloseDisplay(display);
+			g_print("Refresh Rates changed to display mode: %s\n", sres);
+			
+	rates = get_rates();
+	GtkComboBox *refcombo = GTK_COMBO_BOX(user_data);
+	gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(refcombo));
+	for (int i = 0; rates[i] != NULL; i++) 
+	{
+		printf("%s\n", rates[i]);
+		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), rates[i]);
+		gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
+
+	}
+	free(rates);
+
+	g_free(sres);
+
+}
+
+char** get_resolutions() 
+{
+	char** resolutions = malloc(BUFFER_SIZE * sizeof(char*));
+	FILE* pipe = popen("xrandr", "r");
+	char buffer[BUFFER_SIZE];
+	int i = 0;
+	while (fgets(buffer, BUFFER_SIZE, pipe) != NULL) 
+	{
+		if (strstr(buffer, "  ") != NULL) {
+			char* resolution = strtok(buffer, " ");
+			resolutions[i] = strdup(resolution);
+			i++;
+		}
+	}
+	resolutions[i] = NULL;
+	pclose(pipe);
+	return resolutions;
+}
+
+	char **get_rates() 
+	{
+		char buffer[BUFFER_SIZE];
+		char **rates = malloc(BUFFER_SIZE * sizeof(char *));
+		int count = 0;
+
+		FILE *pipe = popen("xrandr", "r");
+		if (!pipe) 
+		{
+			fprintf(stderr, "Error executing command.\n");
+			return NULL;
+		}
+
+		int ures = 1;
+
+		while (fgets(buffer, BUFFER_SIZE, pipe)) 
+		{
+			if (strstr(buffer, "*")) 
+			{
+				char *rate = strtok(buffer, " ");
+				while (rate != NULL && count < BUFFER_SIZE) 
+				{
+					// remove "+" and newlines
+					rate[strcspn(rate, "+\n")] = 0;
+
+					if (!ures && strcmp(rate, "") != 0) {
+						rates[count] = malloc(strlen(rate) + 1);
+						strcpy(rates[count], rate);
+
+						count++;
+					}
+
+					if (ures) {
+						ures = 0;
+					}
+
+					rate = strtok(NULL, " ");
+				}
+			}
+		}
+
+		pclose(pipe);
+
+		// Add NULL terminator to array
+		if (count < BUFFER_SIZE) 
+		{  // check if count is less than BUFFER_SIZE before accessing rates array
+			rates[count] = NULL;
+		} 
+		else 
+		{
+			fprintf(stderr, "Array index out of bounds.\n");
+		}
+
+		return rates;
+	}
+
+
+char** get_outputs() 
+{
+	char* command = "xrandr";
+	char buffer[BUFFER_SIZE];
+	FILE* fp = popen(command, "r");
+	if (fp == NULL) 
+	{
+		fprintf(stderr, "Failed to execute command\n");
+		exit(EXIT_FAILURE);
+	}
+
+	char** outputs = (char**)malloc(sizeof(char*));
+	int num_outputs = 0;
+
+	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) 
+	{
+		if (strstr(buffer, " connected")) 
+		{
+			char* output_name = strtok(buffer, " ");
+			outputs[num_outputs] = (char*)malloc(sizeof(char) * strlen(output_name));
+			strcpy(outputs[num_outputs], output_name);
+			num_outputs++;
+			outputs = (char**)realloc(outputs, sizeof(char*) * (num_outputs + 1));
+		}
+	}
+
+	outputs[num_outputs] = NULL;
+	pclose(fp);
+
 	return outputs;
 }
 
@@ -719,10 +590,10 @@ void on_submenu_item5_selected(GtkMenuItem *menuitem, gpointer userdata)
 void show_success_dialog(GtkWindow *parent) 
 {
 	GtkWidget *dialog = gtk_message_dialog_new(parent,
-		GTK_DIALOG_MODAL,
-		GTK_MESSAGE_INFO,
-		GTK_BUTTONS_OK,
-		_("Commands executed, please close the program and DON\'T execute again the same command"));
+											   GTK_DIALOG_MODAL,
+											   GTK_MESSAGE_INFO,
+											   GTK_BUTTONS_OK,
+											   _("Commands executed, please close the program and DON\'T execute again the same command"));
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
@@ -730,8 +601,7 @@ void on_execute_button_clicked(GtkButton *button, gpointer user_data)
 {
 
 	int result = system(xcmd0);
-	if (result == 0)
-	{
+	if (result == 0) {
 		result = system(xcmd1);
 		if (result == 0) 
 		{
@@ -784,6 +654,7 @@ void on_save_button_clicked(GtkButton *button, gpointer user_data)
 
 void on_ok_button_clicked(GtkButton *button, gpointer user_data) 
 {
+	// Close the window when the "OK" button is clicked
 	GtkWidget *window = GTK_WIDGET(user_data);
 	gtk_widget_destroy(window);
 }
@@ -826,7 +697,7 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wicon);
 
 	GtkWidget *wtitle = gtk_label_new(NULL);
-	//const gchar *markupHeader = "<b>%s - SGRandR</b>";
+	const gchar *markupHeader = "<b>%s - SGRandR</b>";
 	gchar *formattedMarkupHeader = g_markup_printf_escaped(markupTitle, translatedTitle);
 	gtk_label_set_markup(GTK_LABEL(wtitle), formattedMarkupHeader);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
@@ -835,8 +706,7 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
 	}
 	
-	if (info != NULL)
-	{
+	if (info != NULL) {
 		GdkPixbuf *icon = gtk_icon_info_load_icon(info, NULL);
 		gtk_window_set_icon(GTK_WINDOW(window), icon);
 		g_object_unref(icon);
