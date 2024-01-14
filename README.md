@@ -1,6 +1,9 @@
 # SGRandR
 
+This is a test branch created using libxrandr, is not compatible with wayland and is not planned to be mantained
+
 ## TO DO: 
+
 
 - [x] Get a List of Resolutions and change the display resolution
 - [x] Get a List of Refresh Rates and change display refresh rate 
