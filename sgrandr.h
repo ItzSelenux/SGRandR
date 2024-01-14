@@ -78,6 +78,20 @@ textdomain(GETTEXT_PACKAGE);
 }
 
 
+void show_error_dialog(const char *error_message)
+{
+	GtkWidget *dialog;
+	dialog = gtk_message_dialog_new(NULL,
+									GTK_DIALOG_MODAL,
+									GTK_MESSAGE_ERROR,
+									GTK_BUTTONS_OK,
+									"%s",
+									error_message);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
+}
+
+
 void on_entry_changed(GtkEntry *entry, gpointer user_data) 
 {
 	const char *text = gtk_entry_get_text(entry);
@@ -227,9 +241,46 @@ while (ptr != NULL)
 			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, crot, slider);
 		}
 		
- printf("%s\n", command);
+ 	printf("%s\n", command);
+
+
+	char command_with_stderr[256];
+	snprintf(command_with_stderr, sizeof(command_with_stderr), "%s 2>&1", command);
+
+	FILE *cmd_output = popen(command_with_stderr, "r");
+	if (cmd_output == NULL)
+	{
+		show_error_dialog("Error executing command");
+		return;
+	}
+
+	char output_buffer[1024];
+	size_t read_size;
+	char stderr_buffer[1024];
+	stderr_buffer[0] = '\0';
+	char *error_message = NULL;
 	
-	system(command);
+		while ((read_size = fread(output_buffer, 1, sizeof(output_buffer), cmd_output)) > 0)
+	{
+		output_buffer[read_size] = '\0';
+		strncat(stderr_buffer, output_buffer, sizeof(stderr_buffer) - strlen(stderr_buffer) - 1);
+	}
+
+	int return_code = pclose(cmd_output);
+
+	if (WIFEXITED(return_code))
+	{
+		int exit_status = WEXITSTATUS(return_code);
+		if (exit_status != 0)
+		{
+			error_message = stderr_buffer;
+		}
+	}
+
+	if (error_message)
+	{
+		show_error_dialog(error_message);
+	}
 }
 
 gboolean on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
