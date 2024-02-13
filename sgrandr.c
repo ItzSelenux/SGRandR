@@ -14,28 +14,57 @@
 
 	int testmode = 0;
 
-for(int i = 1; i < argc; i++)
-{
-	if(strcmp(argv[i], "--nocsd") == 0)
-	{
-	nocsd = 1;
-	printf("CSD Disabled, using fallback display \n");
-	}
-}
+	const char* env_sgcsd = getenv("SGCSD");
+	const char* env_SType = getenv("XDG_SESSION_TYPE");
 
-for(int i = 1; i < argc; i++)
-{
-	if(strcmp(argv[i], "--testmode") == 0)
+	if (env_SType != NULL)
+		{
+			if (strcmp(env_SType, "wayland") == 0)
+			{
+				g_print("Running SGRandr on Wayland mode, wlr-randr will be used and some features are not available\n");
+				wayland = 1;
+			} 
+			else if (strcmp(env_SType, "x11") == 0)
+			{
+				g_print("Running SGRandr on X11, xrandr will be used\n");
+				wayland = 0;
+			}
+			else
+			{
+				g_print("WARNING: XDG_SESSION_TYPE is not Wayland or X11, asumming that x11 session is running\n");
+				g_print("Running SGRandr on X11, xrandr will be used\n");
+				wayland = 0;
+			}
+		}
+	else
 	{
-	  testmode = 1;
+		g_print("ERROR: XDG_SESSION_TYPE is not defined\n");
+		return 1;
 	}
-}
+			
+	nocsd = (env_sgcsd != NULL) ? atoi(env_sgcsd) == 0 : 0;
+	for(int i = 1; i < argc; i++)
+		{
+			if(strcmp(argv[i], "--nocsd") == 0)
+			{
+			nocsd = 1;
+			printf("CSD Disabled, using fallback display \n");
+			}
+		}
+
+	for(int i = 1; i < argc; i++)
+	{
+		if(strcmp(argv[i], "--testmode") == 0)
+		{
+		  testmode = 1;
+		}
+	}
 	gtk_init(&argc, &argv);
 
-if(testmode)
-{
-	printf("--testmode is eneable, displaying all options \n");
-}
+	if(testmode)
+	{
+		printf("--testmode is eneable, displaying all options \n");
+	}
 
 
 	//Main window
@@ -72,7 +101,7 @@ if(testmode)
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), button);
 	wtitle = gtk_label_new(NULL);
 	const gchar *header = "<b>%s - SGRandR</b>";
-    gchar *formattedHeader = g_markup_printf_escaped(header, translatedTitle);
+	gchar *formattedHeader = g_markup_printf_escaped(header, translatedTitle);
 	gtk_label_set_markup(GTK_LABEL(wtitle), formattedHeader);
 	gtk_header_bar_pack_start(GTK_HEADER_BAR(headerbar), wtitle);
 
@@ -80,17 +109,24 @@ if(testmode)
 	submenu = gtk_menu_new();
 
 	// Create the submenu items
-
 	submenu_item1 = gtk_menu_item_new_with_label(_("Add a custom resolution"));
 	submenu_item2 = gtk_check_menu_item_new_with_label(_("Show \"Scaling mode \" option"));
+	submenu_item6 = gtk_check_menu_item_new_with_label(_("Show \"Adaptative Sync \" option"));
 	submenu_item4 = gtk_menu_item_new_with_label(_("Reload Program"));
 	submenu_item5 = gtk_menu_item_new_with_label(_("Save Configuration"));
 	submenu_item3 = gtk_menu_item_new_with_label(_("About"));
 
 
 	// Add the submenu items to the submenu
+	if (wayland == 0)
+	{
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item1);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item2);
+	}
+	else if (wayland == 1)
+	{
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item6);
+	}
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item4);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item5);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item3);
@@ -151,6 +187,8 @@ if(testmode)
 	scalabel = gtk_label_new(_("Scaling Mode:"));
 	outlabel = gtk_label_new(_("Output:"));
 	poslabel = gtk_label_new(_("Position:"));
+	synclabel = gtk_label_new(_("Adaptative Sync:"));
+		syncchk = gtk_check_button_new();
 
 	defbtn    = gtk_button_new_with_label(_("Default"));
 		gtk_widget_set_tooltip_text(defbtn, "Ctrl+D");
@@ -164,14 +202,6 @@ if(testmode)
 		free(resolutions[i]);
 	}
 	free(resolutions);
-
-	rates = get_rates();
-	for (int i = 0; rates[i] != NULL; i++)
-	{
-		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), rates[i]);
-		free(rates[i]);
-	}
-	free(rates);
 
 	outputs = get_outputs();
 	for (int i = 0; outputs[i] != NULL; i++)
@@ -202,6 +232,16 @@ if(testmode)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(offon), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
+	
+	int adaptiveSyncStatus = getsync_status();
+	if (adaptiveSyncStatus)
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(syncchk), TRUE);
+	}
+	else
+	{
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(syncchk), FALSE);
+	}
 
 	//Items Grid position
 	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Resolution:")), 0, 0, 1, 1);
@@ -216,17 +256,20 @@ if(testmode)
 	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Scale (%):")), 0, 4, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), slider,   1, 4, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(grid), poslabel, 0, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), pos, 1, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 5, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), outlabel, 0, 3, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 3, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), offon, 2, 3, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), scalabel, 0, 7, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), scacombo,   1, 7, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), synclabel, 0, 5, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), syncchk,   1, 5, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(grid), defbtn,   0, 8, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), applybtn, 1, 8, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), poslabel, 0, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), pos, 1, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), outlabel, 0, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), offon, 2, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), scalabel, 0, 8, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), scacombo,   1, 8, 1, 1);
+
+	gtk_grid_attach(GTK_GRID(grid), defbtn,   0, 9, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), applybtn, 1, 9, 1, 1);
 
 
 	g_signal_connect(applybtn, "clicked", G_CALLBACK(on_apply_button_clicked), &num_rows);
@@ -238,6 +281,7 @@ if(testmode)
 	g_signal_connect(submenu_item4, "activate", G_CALLBACK(restart_program), pm);
 	g_signal_connect(submenu_item5, "activate", G_CALLBACK(on_submenu_item5_selected), NULL);
 	g_signal_connect(submenu_item2, "toggled", G_CALLBACK(on_submenu_item2_toggled), &sm);
+	g_signal_connect(submenu_item6, "toggled", G_CALLBACK(on_submenu_item6_toggled), &sm);
 	g_signal_connect(submenu_item3, "activate", G_CALLBACK(on_submenu_item3_selected), NULL);
 	g_signal_connect(window, "button-press-event", G_CALLBACK(on_button_press), submenu);
 
@@ -265,7 +309,7 @@ if(testmode)
 		gtk_widget_hide(submenu_item1);
 	}
 
-		gtk_widget_show_all(window);
+	gtk_widget_show_all(window);
 
 	if (outputs[1] != 0 || testmode == 1)
 	{
@@ -279,16 +323,18 @@ if(testmode)
 	}
 	else
 	{
-	gtk_widget_hide(pos);
-	gtk_widget_hide(offon);
-	gtk_widget_hide(poslabel);
-	gtk_widget_hide(outcombo);
-	gtk_widget_hide(outcombo2);
-	gtk_widget_hide(outlabel);
+		gtk_widget_hide(pos);
+		gtk_widget_hide(offon);
+		gtk_widget_hide(poslabel);
+		gtk_widget_hide(outcombo);
+		gtk_widget_hide(outcombo2);
+		gtk_widget_hide(outlabel);
 	}
 
 	gtk_widget_hide(scacombo);
 	gtk_widget_hide(scalabel);
+	gtk_widget_hide(syncchk);
+	gtk_widget_hide(synclabel);
 	on_rescombo_changed(GTK_COMBO_BOX(rescombo), refcombo);
 	free(outputs);
 	gtk_main();

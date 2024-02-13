@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(shell date +'%Y.%m.%d')\"
-LIBS = `pkg-config --libs gtk+-3.0`
+DATE := $(shell git log -n 1 --format="%ad" --date=format-local:'%Y%m%d/%H:%M:%S')
+CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(DATE)\"  -I/usr/include/X11/extensions/
+LIBS = `pkg-config --libs gtk+-3.0`  -I/usr/include/X11/extensions/Xrandr.h
 
 # File names
 SRC = sgrandr.c sgrandr-cr.c

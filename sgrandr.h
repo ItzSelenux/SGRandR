@@ -12,9 +12,11 @@
 #define localedir "/usr/share/locale"
 
 //system data
+int wayland = 0;
 const char* pver = mver;
 #define BUFFER_SIZE 1024
 int sm = 0;
+int am = 0;
 char *command;
 int nocsd = 0;
 int num_rows;
@@ -41,6 +43,7 @@ GtkWidget *submenu_item2;
 GtkWidget *submenu_item3;
 GtkWidget *submenu_item4;
 GtkWidget *submenu_item5;
+GtkWidget *submenu_item6;
 
 GtkWidget *grid;
 GtkTreeModel *model;
@@ -58,6 +61,8 @@ GtkWidget *outlabel;
 GtkWidget *poslabel;
 GtkWidget *defbtn;
 GtkWidget *applybtn;
+GtkWidget *synclabel;
+GtkWidget *syncchk;
 
 //ui data for cr
 GtkWidget *global_label0;
@@ -68,6 +73,7 @@ GtkWidget *rate;
 
 char xcmd0[100];
 char xcmd1[100];
+gboolean gsync;
 
 //init locale
 int locale()
@@ -78,15 +84,43 @@ textdomain(GETTEXT_PACKAGE);
 }
 
 
+int getsync_status()
+{
+	FILE *inputFile = popen("wlr-randr", "r");
+	if (inputFile == NULL)
+	{
+		perror("Error al ejecutar wlr-randr");
+		exit(EXIT_FAILURE);
+	}
+
+	char line[256];
+	while (fgets(line, sizeof(line), inputFile) != NULL)
+	{
+		if (strstr(line, "Adaptive Sync: disabled") != NULL)
+		{
+			pclose(inputFile);
+			return 0;
+		} 
+		else if (strstr(line, "Adaptive Sync: enabled") != NULL)
+		{
+			pclose(inputFile);
+			return 1;
+		}
+	}
+
+	pclose(inputFile);
+	return 0;
+}
+
 void show_error_dialog(const char *error_message)
 {
 	GtkWidget *dialog;
 	dialog = gtk_message_dialog_new(NULL,
-									GTK_DIALOG_MODAL,
-									GTK_MESSAGE_ERROR,
-									GTK_BUTTONS_OK,
-									"%s",
-									error_message);
+		GTK_DIALOG_MODAL,
+		GTK_MESSAGE_ERROR,
+		GTK_BUTTONS_OK,
+		"%s",
+		error_message);
 	gtk_dialog_run(GTK_DIALOG(dialog));
 	gtk_widget_destroy(dialog);
 }
@@ -116,6 +150,17 @@ void on_entry_changed(GtkEntry *entry, gpointer user_data)
 
 void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
 {
+	gsync = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(syncchk));
+	char *wsync;
+	if (gsync == 1)
+	{
+	wsync = "enabled";
+	}
+	else
+	{
+	wsync = "disabled";
+	}
+
 	int *num_rows_ptr = (int *)user_data;
 	num_rows = *num_rows_ptr;
 	locale();
@@ -187,21 +232,43 @@ void on_apply_button_clicked(GtkButton *button, gpointer user_data)
 	}
 	if (rotation != NULL) 
 	{
-		if (g_strcmp0(rotation, _("normal")) == 0) 
+		if (wayland == 0)
 		{
-			crot = "normal";
+			if (g_strcmp0(rotation, _("normal")) == 0) 
+			{
+				crot = "normal";
+			}
+			else if (g_strcmp0(rotation, _("left")) == 0) 
+			{
+				crot = "left";
+			} 
+			else if (g_strcmp0(rotation, _("right")) == 0) 
+			{
+				crot = "right";
+			} 
+			else if (g_strcmp0(rotation, _("inverted")) == 0) 
+			{
+				crot = "inverted";
+			}
 		}
-		else if (g_strcmp0(rotation, _("left")) == 0) 
+		else
 		{
-			crot = "left";
-		} 
-		else if (g_strcmp0(rotation, _("right")) == 0) 
-		{
-			crot = "right";
-		} 
-		else if (g_strcmp0(rotation, _("inverted")) == 0) 
-		{
-			crot = "inverted";
+			if (g_strcmp0(rotation, _("normal")) == 0) 
+			{
+				crot = "normal";
+			}
+			else if (g_strcmp0(rotation, _("left")) == 0) 
+			{
+				crot = "90";
+			} 
+			else if (g_strcmp0(rotation, _("right")) == 0) 
+			{
+				crot = "270";
+			} 
+			else if (g_strcmp0(rotation, _("inverted")) == 0) 
+			{
+				crot = "180";
+			}
 		}
 	}
 
@@ -219,28 +286,57 @@ while (ptr != NULL)
 }
 		
 	command = (char*) malloc(sizeof(char) * 100);
-		
-		if (ps == 1) 
+
+		if (wayland == 0)
 		{
-			sprintf(command, "xrandr --output %s --off ", output);
+			if (ps == 1) 
+			{
+				sprintf(command, "xrandr --output %s --off ", output);
+			}
+			else if (num_rows > 1 && sm == 1) 
+			{
+				sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, crot, slider, csca, cpos, output2);
+			}
+			else if (sm == 1) 
+			{
+				sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, crot, slider, csca);
+			}
+			else if (num_rows > 1) 
+			{
+				sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, crot, slider, cpos, output2);
+			}
+			else if (num_rows == 1) 
+			{
+				sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, crot, slider);
+			}
 		}
-		else if (num_rows > 1 && sm == 1) 
+		else
 		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, crot, slider, csca, cpos, output2);
+			if (ps == 1) 
+			{
+				sprintf(command, "wlr-randr --output %s --off ", output);
+			}
+			//else if (num_rows > 1 && sm == 1) 
+			//{
+				//sprintf(command, "wlr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \" %s \"  %s %s ", output, resolution, refresh_rate, crot, slider, csca, cpos, output2);
+			//}
+			//else if (sm == 1) 
+			//{
+				//sprintf(command, "wlr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, crot, slider, csca);
+			//}
+			else if (num_rows > 1) 
+			{
+				sprintf(command, "wlr-randr --output %s --mode %s@s --transform %s --scale %s %s %s", output, resolution, refresh_rate, crot, slider, cpos, output2);
+			}
+			else if (num_rows == 1) 
+			{
+				sprintf(command, "wlr-randr --output %s --mode  %s@%s --transform %s --scale %s", output, resolution, refresh_rate, crot, slider);
+			}
+			else if (num_rows == 1 && am == 1) 
+			{
+				sprintf(command, "wlr-randr --output %s --mode  %s@%s --transform %s --scale %s --adaptative-sync %s", output, resolution, refresh_rate, crot, slider, wsync);
+			}
 		}
-		else if (sm == 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s --set \"scaling mode\" \"%s\" ", output, resolution, refresh_rate, crot, slider, csca);
-		}
-		else if (num_rows > 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s %s %s", output, resolution, refresh_rate, crot, slider, cpos, output2);
-		}
-		else if (num_rows == 1) 
-		{
-			sprintf(command, "xrandr --output %s --mode %s --rate %s --rotation %s --scale %s", output, resolution, refresh_rate, crot, slider);
-		}
-		
  	printf("%s\n", command);
 
 
@@ -315,12 +411,38 @@ else
 	}
 }
 
+void on_submenu_item6_toggled(GtkCheckMenuItem *menu_item,void *ptr, gpointer user_data) 
+{
+
+if (gtk_check_menu_item_get_active(menu_item)) 
+	{
+			gtk_widget_show(syncchk);
+			gtk_widget_show(synclabel);
+			int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
+			*int_ptr = 1;
+	} 
+else 
+	{
+			gtk_widget_hide(syncchk);
+			gtk_widget_hide(synclabel);
+			int *int_ptr = (int *) ptr; // cast the void pointer to an int pointer
+			*int_ptr = 0;
+	}
+}
+
 void on_default_button_clicked(GtkButton *button, gpointer user_data) 
 {
 	const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo));
 
 	char *command = (char*) malloc(sizeof(char) * 100);
-	sprintf(command, "xrandr --output %s --auto --scale 1 --rotate normal", output);
+	if (wayland == 0)
+	{
+		sprintf(command, "xrandr --output %s --auto --scale 1 --rotate normal", output);
+	}
+	else
+	{
+		sprintf(command, "wlr-randr --output %s --preferred --scale 1 --transform normal", output);
+	}
 	printf("Reverted to default configuration\n");
 	system(command);
 	free(command);
@@ -344,6 +466,7 @@ void restart_program(GtkWidget *widget, gpointer data)
 
 static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 {
+	FILE* pipe;
 	GtkComboBoxText *combo_text = GTK_COMBO_BOX_TEXT(combo_box);
 	   const gchar *pres = gtk_combo_box_text_get_active_text(combo_text);
 
@@ -355,7 +478,16 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 		char **rates = malloc(BUFFER_SIZE * sizeof(char *));
 		int count = 0;
 
-		FILE *pipe = popen("xrandr", "r");
+			if (wayland == 0)
+	{
+		command = "xrandr";
+	}
+	else
+	{
+		command = "wlr-randr";
+	}
+
+	pipe = popen(command, "r");
 		if (!pipe)
 		{
 			fprintf(stderr, "Error executing command.\n");
@@ -364,33 +496,53 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 
 		int ures = 1;
 
-		while (fgets(buffer, BUFFER_SIZE, pipe)) 
+	while (fgets(buffer, BUFFER_SIZE, pipe))
+	{
+		if (strstr(buffer, sres))
 		{
-			if (strstr(buffer, sres)) 
+			char *rate = strtok(buffer, " ");
+			while (rate != NULL && count < BUFFER_SIZE)
 			{
-				char *rate = strtok(buffer, " ");
-				while (rate != NULL && count < BUFFER_SIZE)
-				{  // check if count is less than BUFFER_SIZE before accessing rates array
-					// remove "+" and newlines
-					rate[strcspn(rate, "+\n")] = 0;
+				rate[strcspn(rate, "+\n")] = 0;
 
-					if (!ures && strcmp(rate, "") != 0 && strchr(rate, 'x') == NULL)
-					{
-						rates[count] = malloc(strlen(rate) + 1);
-						strcpy(rates[count], rate);
-
-						count++;
-					}
-
-					if (ures)
-					{
-						ures = 0;
-					}
-
-					rate = strtok(NULL, " ");
+				char *hz_ptr = strstr(rate, "Hz");
+				if (hz_ptr != NULL)
+				{
+					*hz_ptr = '\0';
 				}
+				char *current_ptr = strstr(rate, "current");
+				if (current_ptr != NULL)
+				{
+					*current_ptr = '\0';
+				}
+				char *preferred_ptr = strstr(rate, "preferred");
+				if (preferred_ptr != NULL)
+				{
+					*preferred_ptr = '\0';
+				}
+				char *p1 = strstr(rate, "(");
+				if (p1 != NULL)
+				{
+					*p1 = '\0';
+				}
+
+				if (!ures && strcmp(rate, "") != 0 && strchr(rate, 'x') == NULL)
+				{
+					rates[count] = malloc(strlen(rate) + 1);
+					strcpy(rates[count], rate);
+
+					count++;
+				}
+
+				if (ures)
+				{
+					ures = 0;
+				}
+
+				rate = strtok(NULL, " ");
 			}
 		}
+	}
 
 		pclose(pipe);
 
@@ -427,80 +579,87 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 
 }
 
-char** get_resolutions() 
+char** get_resolutions()
 {
+	FILE* pipe;
+	char* command;
+
+	if (wayland == 0)
+	{
+		command = "xrandr";
+	}
+	else
+	{
+		command = "wlr-randr";
+	}
+
+	pipe = popen(command, "r");
+
+	if (pipe == NULL)
+	{
+		fprintf(stderr, "Error opening pipe.\n");
+		exit(EXIT_FAILURE);
+	}
+
 	char** resolutions = malloc(BUFFER_SIZE * sizeof(char*));
-	FILE* pipe = popen("xrandr", "r");
 	char buffer[BUFFER_SIZE];
 	int i = 0;
-	while (fgets(buffer, BUFFER_SIZE, pipe) != NULL) 
+
+	while (fgets(buffer, BUFFER_SIZE, pipe) != NULL)
 	{
-		if (strstr(buffer, "  ") != NULL) {
+		if (wayland == 0 && strstr(buffer, "  ") != NULL)
+		{
+			char* resolution = strtok(buffer, " ");
+			resolutions[i] = strdup(resolution);
+			i++;
+		}
+		else if (wayland == 1 && strstr(buffer, "px") != NULL)
+		{
 			char* resolution = strtok(buffer, " ");
 			resolutions[i] = strdup(resolution);
 			i++;
 		}
 	}
+
 	resolutions[i] = NULL;
 	pclose(pipe);
-	return resolutions;
-}
 
-	char **get_rates() 
+	// Delete duplicated entries
+	if (wayland == 1)
 	{
-		char buffer[BUFFER_SIZE];
-		char **rates = malloc(BUFFER_SIZE * sizeof(char *));
-		int count = 0;
+		char** unique_resolutions = malloc(BUFFER_SIZE * sizeof(char*));
+		int j = 0;
 
-		FILE *pipe = popen("xrandr", "r");
-		if (!pipe) 
+		for (int k = 0; resolutions[k] != NULL; k++)
 		{
-			fprintf(stderr, "Error executing command.\n");
-			return NULL;
-		}
+			int duplicate = 0;
 
-		int ures = 1;
-
-		while (fgets(buffer, BUFFER_SIZE, pipe)) 
-		{
-			if (strstr(buffer, "*")) 
+			for (int l = 0; l < j; l++)
 			{
-				char *rate = strtok(buffer, " ");
-				while (rate != NULL && count < BUFFER_SIZE) 
+				if (strcmp(resolutions[k], unique_resolutions[l]) == 0)
 				{
-					// remove "+" and newlines
-					rate[strcspn(rate, "+\n")] = 0;
-
-					if (!ures && strcmp(rate, "") != 0) {
-						rates[count] = malloc(strlen(rate) + 1);
-						strcpy(rates[count], rate);
-
-						count++;
-					}
-
-					if (ures) {
-						ures = 0;
-					}
-
-					rate = strtok(NULL, " ");
+					duplicate = 1;
+					break;
 				}
 			}
+			if (!duplicate)
+			{
+				unique_resolutions[j] = strdup(resolutions[k]);
+				j++;
+			}
 		}
-
-		pclose(pipe);
-
-		// Add NULL terminator to array
-		if (count < BUFFER_SIZE) 
-		{  // check if count is less than BUFFER_SIZE before accessing rates array
-			rates[count] = NULL;
-		} 
-		else 
+		for (int k = 0; resolutions[k] != NULL; k++)
 		{
-			fprintf(stderr, "Array index out of bounds.\n");
+			free(resolutions[k]);
 		}
+		free(resolutions);
+		unique_resolutions[j] = NULL;
 
-		return rates;
+		return unique_resolutions;
 	}
+
+	return resolutions;
+}
 
 
 char** get_outputs() 
@@ -573,19 +732,19 @@ void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata)
 
 void on_submenu_item3_selected(GtkMenuItem *menuitem, gpointer userdata) 
 {
-GtkWidget *dialog;
-dialog = gtk_about_dialog_new();
-
-gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR");
-gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), pver);
-gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2023 Simple GTK Desktop Environment");
-gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("SGDE Display Configurator"));
-gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://itzselenux.github.io/sgrandr");
-gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), _("Project WebSite"));
-gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_GPL_3_0);
-gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
-gtk_dialog_run(GTK_DIALOG(dialog));
-gtk_widget_destroy(dialog);
+	GtkWidget *dialog;
+	dialog = gtk_about_dialog_new();
+	
+	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(dialog), "SGRandR");
+	gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(dialog), pver);
+	gtk_about_dialog_set_copyright(GTK_ABOUT_DIALOG(dialog), "Copyright © 2024 Simple GTK Desktop Environment");
+	gtk_about_dialog_set_comments(GTK_ABOUT_DIALOG(dialog), _("SGDE Display Configurator"));
+	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(dialog), "https://sgde.github.io/sgrandr");
+	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(dialog), _("Project WebSite"));
+	gtk_about_dialog_set_license_type(GTK_ABOUT_DIALOG(dialog),GTK_LICENSE_GPL_3_0);
+	gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(dialog),"video-display");
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
 }
 
 void on_submenu_item5_selected(GtkMenuItem *menuitem, gpointer userdata) 
@@ -652,7 +811,8 @@ void on_execute_button_clicked(GtkButton *button, gpointer user_data)
 {
 
 	int result = system(xcmd0);
-	if (result == 0) {
+	if (result == 0)
+	{
 		result = system(xcmd1);
 		if (result == 0) 
 		{
@@ -757,7 +917,8 @@ void on_applybtn_clicked(GtkButton *button, gpointer user_data)
 	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
 	}
 	
-	if (info != NULL) {
+	if (info != NULL)
+	{
 		GdkPixbuf *icon = gtk_icon_info_load_icon(info, NULL);
 		gtk_window_set_icon(GTK_WINDOW(window), icon);
 		g_object_unref(icon);
