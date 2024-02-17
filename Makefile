@@ -1,7 +1,7 @@
 CC = gcc
 DATE := $(shell git log -n 1 --format="%ad" --date=format-local:'%Y%m%d/%H:%M:%S')
-CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(DATE)\"  -I/usr/include/X11/extensions/
-LIBS = `pkg-config --libs gtk+-3.0`  -I/usr/include/X11/extensions/Xrandr.h
+CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(DATE)\"
+LIBS = `pkg-config --libs gtk+-3.0`
 
 # File names
 SRC = sgrandr.c sgrandr-cr.c
@@ -24,7 +24,6 @@ debug:
 # Test step
 test:
 	./sgrandr
-	./sgrandr-cr
 
 # Clean object files and executables
 clean:

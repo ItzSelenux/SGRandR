@@ -1,15 +1,12 @@
 #include "sgrandr.h"
 
- int main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	if (argc > 0)
-	{
 		pm = argv[0];
-	}
 	else
-	{
 		pm = "sgrandr";
-	}
+
 	locale();
 
 	int testmode = 0;
@@ -21,27 +18,22 @@
 		{
 			if (strcmp(env_SType, "wayland") == 0)
 			{
-				g_print("Running SGRandr on Wayland mode, wlr-randr will be used and some features are not available\n");
-				wayland = 1;
+				g_print("Running SGRandr on wayland mode, wlr-randr will be used and some features are not available\n");
+				wlr = 1;
 			} 
 			else if (strcmp(env_SType, "x11") == 0)
 			{
 				g_print("Running SGRandr on X11, xrandr will be used\n");
-				wayland = 0;
+				wlr = 0;
 			}
 			else
 			{
-				g_print("WARNING: XDG_SESSION_TYPE is not Wayland or X11, asumming that x11 session is running\n");
+				g_print("WARNING: XDG_SESSION_TYPE is not wayland or X11, asumming that x11 session is running\n");
 				g_print("Running SGRandr on X11, xrandr will be used\n");
-				wayland = 0;
+				wlr = 0;
 			}
 		}
-	else
-	{
-		g_print("ERROR: XDG_SESSION_TYPE is not defined\n");
-		return 1;
-	}
-			
+
 	nocsd = (env_sgcsd != NULL) ? atoi(env_sgcsd) == 0 : 0;
 	for(int i = 1; i < argc; i++)
 		{
@@ -55,16 +47,12 @@
 	for(int i = 1; i < argc; i++)
 	{
 		if(strcmp(argv[i], "--testmode") == 0)
-		{
-		  testmode = 1;
-		}
+			testmode = 1;
 	}
 	gtk_init(&argc, &argv);
 
 	if(testmode)
-	{
 		printf("--testmode is eneable, displaying all options \n");
-	}
 
 
 	//Main window
@@ -118,14 +106,14 @@
 
 
 	// Add the submenu items to the submenu
-	if (wayland == 0)
+	if (wlr == 0)
 	{
-	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item1);
-	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item2);
+		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item1);
+		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item2);
 	}
-	else if (wayland == 1)
+	else if (wlr == 1)
 	{
-	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item6);
+		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item6);
 	}
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item4);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), submenu_item5);
@@ -138,11 +126,8 @@
 	gtk_menu_button_set_popup(GTK_MENU_BUTTON(button), submenu);
 
 	// Add the header bar to the main window
-	if (nocsd == 0 )
-	{
-	gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
-	}
-
+	if (nocsd == 0)
+		gtk_window_set_titlebar(GTK_WINDOW(window), headerbar);
 
 	// Create grid
 	grid = gtk_grid_new();
@@ -190,9 +175,9 @@
 	synclabel = gtk_label_new(_("Adaptative Sync:"));
 		syncchk = gtk_check_button_new();
 
-	defbtn    = gtk_button_new_with_label(_("Default"));
+	defbtn = gtk_button_new_with_label(_("Default"));
 		gtk_widget_set_tooltip_text(defbtn, "Ctrl+D");
-	applybtn  = gtk_button_new_with_label(_("Apply"));
+	applybtn = gtk_button_new_with_label(_("Apply"));
 
 	// Get the Values of comboboxes
 	resolutions = get_resolutions();
@@ -221,11 +206,13 @@
 		gtk_grid_attach(GTK_GRID(grid), defbtn,   1, 8, 1, 1);
 	}
 
+	getres();
+	g_print("%s\n", defrate);
+	defcombo (GTK_COMBO_BOX(rescombo), defres);
+	on_rescombo_changed(GTK_COMBO_BOX(rescombo), refcombo);
+	defcombo (GTK_COMBO_BOX(refcombo), defrate);
 
-
-	//Set first option of comboboxes as default
-	gtk_combo_box_set_active(GTK_COMBO_BOX(rescombo), 0);
-	gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
+	//gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(rotcombo), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(scacombo), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo), 0);
@@ -233,15 +220,11 @@
 	gtk_combo_box_set_active(GTK_COMBO_BOX(outcombo2), 0);
 	gtk_combo_box_set_active(GTK_COMBO_BOX(pos), 0);
 	
-	int adaptiveSyncStatus = getsync_status();
-	if (adaptiveSyncStatus)
-	{
+	int syncs = get_sync();
+	if (syncs)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(syncchk), TRUE);
-	}
 	else
-	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(syncchk), FALSE);
-	}
 
 	//Items Grid position
 	gtk_grid_attach(GTK_GRID(grid), gtk_label_new(_("Resolution:")), 0, 0, 1, 1);
@@ -259,12 +242,12 @@
 	gtk_grid_attach(GTK_GRID(grid), synclabel, 0, 5, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), syncchk,   1, 5, 1, 1);
 
-	gtk_grid_attach(GTK_GRID(grid), poslabel, 0, 6, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), pos, 1, 6, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 6, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), outlabel, 0, 4, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 4, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), offon, 2, 4, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), poslabel, 0, 7, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), pos, 1, 7, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), outcombo2, 2, 7, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), outlabel, 0, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), outcombo, 1, 6, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), offon, 2, 6, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), scalabel, 0, 8, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), scacombo,   1, 8, 1, 1);
 
@@ -280,8 +263,10 @@
 	g_signal_connect(submenu_item1, "activate", G_CALLBACK(on_submenu_item1_selected), NULL);
 	g_signal_connect(submenu_item4, "activate", G_CALLBACK(restart_program), pm);
 	g_signal_connect(submenu_item5, "activate", G_CALLBACK(on_submenu_item5_selected), NULL);
-	g_signal_connect(submenu_item2, "toggled", G_CALLBACK(on_submenu_item2_toggled), &sm);
-	g_signal_connect(submenu_item6, "toggled", G_CALLBACK(on_submenu_item6_toggled), &sm);
+	g_signal_connect(submenu_item2, "toggled", G_CALLBACK(toggled), &sm);
+	g_signal_connect(submenu_item6, "toggled", G_CALLBACK(toggled), &am);
+
+
 	g_signal_connect(submenu_item3, "activate", G_CALLBACK(on_submenu_item3_selected), NULL);
 	g_signal_connect(window, "button-press-event", G_CALLBACK(on_button_press), submenu);
 
@@ -294,19 +279,19 @@
 
 	// End
 	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER);
-		if (access("/usr/bin/sgrandr-cr", F_OK) == 0)
-	{
-		printf("sgrandr-cr detected \n");
-	}
-	else if
-	(access("./sgrandr-cr", F_OK) == 0)
-	{
-		printf("sgrandr-cr detected \n");
-	}
+	if (access("/usr/bin/sgrandr-cr", F_OK) == 0 || access("./sgrandr-cr", F_OK) == 0)
+	printf("sgrandr-cr detected\n");
 	else
 	{
 		printf("\033[1;33mWARNING\033[0m: sgrandr-cr not detected, hiding button.\n");
 		gtk_widget_hide(submenu_item1);
+	}
+
+
+	if ((wlr == 1 && access("/usr/bin/wlr-randr", F_OK) != 0) || (wlr == 0 && access("/usr/bin/xrandr", F_OK) != 0))
+	{
+		show_error_dialog("ERROR: wlr-randr or xrandr is not installed");
+		exit(EXIT_FAILURE);
 	}
 
 	gtk_widget_show_all(window);
@@ -335,7 +320,6 @@
 	gtk_widget_hide(scalabel);
 	gtk_widget_hide(syncchk);
 	gtk_widget_hide(synclabel);
-	on_rescombo_changed(GTK_COMBO_BOX(rescombo), refcombo);
 	free(outputs);
 	gtk_main();
 

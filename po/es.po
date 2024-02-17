@@ -168,7 +168,7 @@ msgstr ""
 
 #: sgrandr.h:487 sgrandr.h:531
 msgid "SGDE Display Configurator"
-msgstr "SGDE Configurador de pantalla"
+msgstr "Configurador de pantalla de SGDE"
 
 #: sgrandr.h:489 sgrandr.h:533
 msgid "Project WebSite"
