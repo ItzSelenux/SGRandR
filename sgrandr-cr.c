@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-locale();
+	locale();
 
 	gtk_init(&argc, &argv);
 	//Main window
