@@ -4,7 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "libintl.h"
-#include "locale.h"
+#include <locale.h>
 
 //locale data
 #define _(String) gettext(String)

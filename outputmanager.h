@@ -194,6 +194,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 
 void on_apply_button_clicked(GtkButton *button, gpointer user_data) 
 {
+	setlocale(LC_NUMERIC, "C");
 	const gchar *active_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(pos));
 	const char *output = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(outcombo)),
 	*opwr = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(offon)),
