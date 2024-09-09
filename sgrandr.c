@@ -54,16 +54,6 @@ int main(int argc, char *argv[])
 	if(testmode)
 		printf("--testmode is eneable, displaying all options \n");
 
-	if ( !file_exists_in_path("sgrandr-cr") || access("./sgrandr-cr", F_OK) == 0)
-	{
-		printf("sgrandr-cr detected\n");
-	}
-	else
-	{
-		printf("\033[1;33mWARNING\033[0m: sgrandr-cr not detected, hiding button.\n");
-		gtk_widget_hide(submenu_item1);
-	}
-
 
 	if ((wlr == 1 && !file_exists_in_path("wlr-randr")) || (wlr == 0 && !file_exists_in_path("xrandr")))
 	{

@@ -10,10 +10,3 @@ Type=Application
 Categories=GTK;Settings;HardwareSettings;
 Keywords=screen;display;tv;extend;projector;xrandr;refresh rate;position;enable;disable;custom;
 X-AppStream-Ignore=true
-Actions=Option2;
-
-[Desktop Action Option2]
-Name=Add a custom resolution
-Name[es]=Añadir una resolución personalizada
-Exec=sgrandr-cr
-

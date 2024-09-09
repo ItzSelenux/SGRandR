@@ -95,37 +95,28 @@ int get_sync()
 	return status;
 }
 
-static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
+char **get_rates(char *sres)
 {
-	FILE* pipe;
-	GtkComboBoxText *combo_text = GTK_COMBO_BOX_TEXT(combo_box);
-		const gchar *pres = gtk_combo_box_text_get_active_text(combo_text);
+	char buffer[ML];
+	char **rates = malloc(ML * sizeof(char *));
+	int count = 0;
 
-	char *sres = g_strdup_printf("%s ", pres);
-
-	char **get_rates()
+	if (rates == NULL)
 	{
-		char buffer[ML];
-		char **rates = malloc(ML * sizeof(char *));
-		int count = 0;
-
-	if (wlr == 0)
-	{
-		command = "xrandr";
-	}
-	else
-	{
-		command = "wlr-randr";
+		fprintf(stderr, "Memory allocation failed.\n");
+		return NULL;
 	}
 
-	pipe = popen(command, "r");
-		if (!pipe)
-		{
-			fprintf(stderr, "Error executing command.\n");
-			return NULL;
-		}
+	const char *command = (wlr == 0) ? "xrandr" : "wlr-randr";
+	FILE *pipe = popen(command, "r");
+	if (!pipe)
+	{
+		fprintf(stderr, "Error executing command.\n");
+		free(rates);
+		return NULL;
+	}
 
-		int ures = 1;
+	int ures = 1;
 
 	while (fgets(buffer, ML, pipe))
 	{
@@ -134,7 +125,7 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 			char *rate = strtok(buffer, " ");
 			while (rate != NULL && count < ML)
 			{
-				rate[strcspn(rate, "+\n")] = 0;
+				rate[strcspn(rate, "+\n")] = '\0';
 
 				char *hz_ptr = strstr(rate, "Hz");
 				if (hz_ptr != NULL)
@@ -152,6 +143,16 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 				if (!ures && strcmp(rate, "") != 0 && strchr(rate, 'x') == NULL)
 				{
 					rates[count] = malloc(strlen(rate) + 1);
+					if (rates[count] == NULL)
+					{
+						fprintf(stderr, "Memory allocation failed.\n");
+						pclose(pipe);
+
+						for (int i = 0; i < count; i++)
+							free(rates[i]);
+						free(rates);
+						return NULL;
+					}
 					strcpy(rates[count], rate);
 					count++;
 				}
@@ -164,30 +165,48 @@ static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
 		}
 	}
 
-		pclose(pipe);
+	pclose(pipe);
 
-		if (count < ML) 
-			rates[count] = NULL;
-		else
-			fprintf(stderr, "Array index out of bounds.\n");
+	if (count < ML)
+		rates[count] = NULL;
+	else
+	{
+		fprintf(stderr, "Array index out of bounds.\n");
 
-		return rates;
+		for (int i = 0; i < count; i++)
+			free(rates[i]);
+		free(rates);
+		return NULL;
 	}
 
-	char **rates = get_rates();
+	return rates;
+}
+
+static void on_rescombo_changed(GtkComboBox *combo_box, gpointer user_data)
+{
+	GtkComboBoxText *combo_text = GTK_COMBO_BOX_TEXT(combo_box);
+	const gchar *pres = gtk_combo_box_text_get_active_text(combo_text);
+
+	char *sres = g_strdup_printf("%s ", pres);
+
+	char **rates = get_rates(sres);
+	if (rates == NULL)
+	{
+		g_free(sres);
+		return;
+	}
 
 	g_print("Refresh Rates changed to display mode: %s\n", sres);
 
-	rates = get_rates();
 	GtkComboBox *refcombo = GTK_COMBO_BOX(user_data);
 	gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(refcombo));
 	for (int i = 0; rates[i] != NULL; i++) 
 	{
 		printf("%s\n", rates[i]);
 		gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(refcombo), rates[i]);
-		gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
+		free(rates[i]);
 	}
-
+	gtk_combo_box_set_active(GTK_COMBO_BOX(refcombo), 0);
 	free(rates);
 	g_free(sres);
 }

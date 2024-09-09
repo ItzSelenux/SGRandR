@@ -1,3 +1,4 @@
+void create_cr_window();
 //init locale
 int locale()
 {
@@ -7,35 +8,10 @@ int locale()
 	return 0;
 }
 
-
-
-
-
-
-
-
-
-
-
 void on_submenu_item1_selected(GtkMenuItem *menuitem, gpointer userdata)
 {
-	char *command = "sgrandr-cr";
-	if (execvp(command, (char *[]){command, NULL}) == -1)
-	{
-		perror("execvp");
-		if (access("./sgrandr-cr", F_OK) == 0)
-		{
-			execl("./sgrandr-cr", "./sgrandr-cr", (char *)NULL);
-			perror("execl");
-		}
-		else
-		{
-			printf("\033[1;31mERROR\033[0m: sgrandr-cr not detected, are you in testmode?\n");
-		}
-		return;
-	}
+	create_cr_window();
 }
-
 
 void on_submenu_item3_selected(GtkMenuItem *menuitem, gpointer userdata) 
 {
@@ -149,6 +125,7 @@ void create_window()
 		g_object_unref(icon);
 		g_object_unref(info);
 	}
+
 	//accelerator header
 	accel_group = gtk_accel_group_new();
 		gtk_window_add_accel_group(GTK_WINDOW(window), accel_group);

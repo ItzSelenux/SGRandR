@@ -1,12 +1,12 @@
-CC = gcc
-DATE := $(shell git log -n 1 --format="%ad" --date=format-local:'%Y%m%d/%H:%M:%S')
+CC = cc
+DATE := $(shell git log -n 1 --format="%ad" --date=format-local:'%Y%m%d.%H%M')
 CFLAGS = `pkg-config --cflags gtk+-3.0` -Dmver=\"$(DATE)\"
 LIBS = `pkg-config --libs gtk+-3.0`
 
 # File names
-SRC = sgrandr.c sgrandr-cr.c
+SRC = sgrandr.c
 OBJ = $(SRC:.c=.o)
-EXE = sgrandr sgrandr-cr
+EXE = sgrandr
 
 # Build executable files
 all: $(EXE)
@@ -23,7 +23,7 @@ debug:
 
 # Test step
 test:
-	./sgrandr
+	./$(EXE)
 
 # Clean object files and executables
 clean:

@@ -1,0 +1,56 @@
+name: Continous CI
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          libgtk-3-dev \
+          pkg-config \
+          clang
+
+    - name: Build with GCC
+      run: |
+        make CC=gcc
+        mv sgrandr sgrandr-$DATE-$(ldd --version | awk '/ldd/{print "-gnu-" $NF}')
+
+    - name: Build with Clang
+      run: |
+        make CC=clang
+      continue-on-error: true
+
+    - name: Build with -Werror
+      run: |
+       cc `pkg-config --cflags gtk+-3.0` -Dmver=\"NULL\" -Werror -o sglauncher sglauncher.o `pkg-config --libs gtk+-3.0` -lm --verbose
+      continue-on-error: true
+
+    - name: Set up variables
+      id: date
+      run: |
+       echo "DATE=$(git log -n 1 --format='%ad' --date=format-local:'%Y%m%d.%H%M')" >> $GITHUB_ENV
+       echo "GH_RELEASE_FILE=sgrandr-$DATE-$(ldd --version | awk '/ldd/{print "-gnu-" $NF}')" >> $GITHUB_ENV
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      with:
+        body: Release ci-${{ env.DATE }}
+        name: ${{ github.event.head_commit.message }}
+        tag_name: ${{ env.DATE }}
+        files: |
+            ${{ env.GH_RELEASE_FILE }}

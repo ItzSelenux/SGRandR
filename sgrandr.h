@@ -25,7 +25,7 @@ GtkIconInfo *info;
 GdkPixbuf *icon;
 GtkTreeModel *model;
 //ui data
-GtkWidget *window,
+GtkWidget *window, *dialog,
 *headerbar,*button,*image,*wtitle,
 *submenu,*submenu_item1,*submenu_item2,*submenu_item3,
 *submenu_item4,*submenu_item5,*submenu_item6,
